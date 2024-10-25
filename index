@@ -27,14 +27,14 @@ auth_curl() {
 [[ -n "$FEED_REINDEX" ]] && printf 'Re'
 echo "Indexing..."
 
-# https://github.com/seanbreckenridge/wait-for-internet
+# https://github.com/purarue/wait-for-internet
 wait-for-internet -q --timeout 30 || exit 0
 
 [[ -n "$MY_FEED_SECRET" ]] && CURL_AUTH_OPTS=("-H" "token:$MY_FEED_SECRET")
 
 # temporary dir for new data
 TMPDIR="$(mktemp -d)"
-# https://github.com/seanbreckenridge/seanb-utils/blob/main/shellscripts/epoch
+# https://github.com/purarue/pura-utils/blob/main/shellscripts/epoch
 JSON="${TMPDIR}/$(epoch).json" || exit $?
 
 # warm tz cache in case its expired, use flock in case something else is already running doctor
@@ -58,7 +58,7 @@ if [[ -z "$FEED_REINDEX" ]]; then
 	export MY_FEED_EXCLUDE_SOURCES='mal.deleted,games.grouvee,games.game_center,facebook_spotify_listens,games.osrs'
 else
 	# running a re-index, so update the approved IDs for computing deleted anime entry data
-	# https://github.com/seanbreckenridge/malexport/#recover_deleted
+	# https://github.com/purarue/malexport/#recover_deleted
 	python3 -m malexport recover-deleted approved-update
 	export RUNELITE_PHOTOS_PREFIX='https://sean.fish/' # set prefix for indexer
 	vps_sync_osrs_images || exit $?

@@ -6,7 +6,7 @@ const About: React.FC = () => {
       <a
         style={{ marginLeft: "20px" }}
         className={styles.link}
-        href="https://github.com/seanbreckenridge/my_feed"
+        href="https://github.com/purarue/my_feed"
       >
         Source Code
       </a>

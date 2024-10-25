@@ -45,7 +45,7 @@ def _music_dir_matches() -> Dict[Tuple[str, ...], Path]:
     Scan my current music directory, creating lookups for possible path matches. For example:
 
     Trying to match:
-        /home/sean/Music/Artist/Album/Song.mp3
+        /home/username/Music/Artist/Album/Song.mp3
 
     So to the result dict we should add:
         Artist/Album/Song (the last 3 paths, without extension)
@@ -127,7 +127,7 @@ def _fix_media(
     """Fix broken metadata on scrobbles, and save my responses to a cache file"""
 
     # if we can find the file locally still, use that to extract data from fixed mp3 file
-    # (I've since run https://github.com/seanbreckenridge/plaintext_playlist_py/blob/master/bin/id3stuff on all my music, so it has correct tags)
+    # (I've since run https://github.com/purarue/plaintext_playlist_py/blob/master/bin/id3stuff on all my music, so it has correct tags)
     # this is here to fix legacy data from years ago
 
     # if we've fixed this in the past

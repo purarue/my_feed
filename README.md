@@ -1,32 +1,32 @@
-A personal feed/website using [`HPI`](https://github.com/seanbreckenridge/HPI)
+A personal feed/website using [`HPI`](https://github.com/purarue/HPI)
 
 Live at <https://sean.fish/feed/>
 
-<img src="https://github.com/seanbreckenridge/my_feed/blob/master/.github/my_feed.png" width=500/>
+<img src="https://github.com/purarue/my_feed/blob/master/.github/my_feed.png" width=500/>
 
 This uses:
 
-- `python`: to get my data using [HPI](https://github.com/seanbreckenridge/HPI), and to cleanup/enrich it with some local data/cached API requests. `my_feed index` is called in the [`index`](./index) script, which syncs a JSON file up to the server which `backend` can combine into the sqlite database
+- `python`: to get my data using [HPI](https://github.com/purarue/HPI), and to cleanup/enrich it with some local data/cached API requests. `my_feed index` is called in the [`index`](./index) script, which syncs a JSON file up to the server which `backend` can combine into the sqlite database
 - `golang`: basic REST API to let frontend paginate through the data, authenticated endpoints for updating the sqlite database
 - `typescript`: public-facing [frontend](https://sean.fish/feed/); requests to the backend, lets user filter/order/search the data
 
 ### Data Sources:
 
 - Music
-  - [listenbrainz_export](https://github.com/seanbreckenridge/listenbrainz_export) for scrobbles, from [listenbrainz](https://listenbrainz.org/) (similar to last.fm)
-  - [mpv_history_daemon](https://github.com/seanbreckenridge/mpv-history-daemon) for [mpv](https://github.com/mpv-player/mpv) history
+  - [listenbrainz_export](https://github.com/purarue/listenbrainz_export) for scrobbles, from [listenbrainz](https://listenbrainz.org/) (similar to last.fm)
+  - [mpv_history_daemon](https://github.com/purarue/mpv-history-daemon) for [mpv](https://github.com/mpv-player/mpv) history
 - Movies/TV Shows
-  - [traktexport](https://github.com/seanbreckenridge/traktexport), grabbing data from [Trakt](https://trakt.tv/). Trakt provides [TMDB](http://themoviedb.org/) IDs, so I can fetch images for each episode
+  - [traktexport](https://github.com/purarue/traktexport), grabbing data from [Trakt](https://trakt.tv/). Trakt provides [TMDB](http://themoviedb.org/) IDs, so I can fetch images for each episode
 - Games
-  - [grouvee_export](https://github.com/seanbreckenridge/grouvee_export) to parse the CSV export from [Grouvee](https://www.grouvee.com/) with images from [GiantBomb](https://www.giantbomb.com/)
-  - [steamscraper](https://github.com/seanbreckenridge/steamscraper) to scrape my [steam](https://steamcommunity.com/) achievements
-  - [chess_export](https://github.com/seanbreckenridge/chess_export) for chess games, the [python-chess.svg](https://python-chess.readthedocs.io/en/latest/) package to parse the PGNs into SVGs
+  - [grouvee_export](https://github.com/purarue/grouvee_export) to parse the CSV export from [Grouvee](https://www.grouvee.com/) with images from [GiantBomb](https://www.giantbomb.com/)
+  - [steamscraper](https://github.com/purarue/steamscraper) to scrape my [steam](https://steamcommunity.com/) achievements
+  - [chess_export](https://github.com/purarue/chess_export) for chess games, the [python-chess.svg](https://python-chess.readthedocs.io/en/latest/) package to parse the PGNs into SVGs
 - Albums
-  - [albums](https://github.com/seanbreckenridge/albums) which requests out to [discogs](https://www.discogs.com/)
+  - [albums](https://github.com/purarue/albums) which requests out to [discogs](https://www.discogs.com/)
 - Anime/Manga
-  - [malexport](https://github.com/seanbreckenridge/malexport/), saving my data from [MAL](https://myanimelist.net/)
+  - [malexport](https://github.com/purarue/malexport/), saving my data from [MAL](https://myanimelist.net/)
 
-If not mentioned its likely a module in [HPI](https://github.com/seanbreckenridge/HPI)
+If not mentioned its likely a module in [HPI](https://github.com/purarue/HPI)
 
 I periodically index all my data [in the background](https://sean.fish/d/my_feed_index_bg.job?redirect):
 
@@ -81,7 +81,7 @@ location /feed_api/ {
 For the python library:
 
 ```bash
-git clone https://github.com/seanbreckenridge/my_feed
+git clone https://github.com/purarue/my_feed
 pip install -e ./my_feed
 ```
 
@@ -171,20 +171,20 @@ Options:
 
 `feed_check` updates some of my data which is updated more often (music (both mpv and listenbrainz), tv shows (trakt), chess, albums), by comparing the IDs of the latest items in the remote database to the corresponding live data sources.
 
-This is pretty personal as it relies on my `anacron`-like [bgproc](https://github.com/seanbreckenridge/bgproc) tool to handle updating data periodically.
+This is pretty personal as it relies on my `anacron`-like [bgproc](https://github.com/purarue/bgproc) tool to handle updating data periodically.
 
 So all of these follow some pattern like (e.g. for `chess`)
 
 - get the `end_time` of the last couple items from the `my_feed` database (using the same `JSON` endpoints the frontend uses)
-- get the first page of my chess games from the `chess.com` API using [chess_export](https://github.com/seanbreckenridge/chess_export)
+- get the first page of my chess games from the `chess.com` API using [chess_export](https://github.com/purarue/chess_export)
 - if there's new data (the last `end_time` is not in the first page of the API), then:
-  - remove the `evry tag` for the [job that updates my chess games](https://github.com/seanbreckenridge/HPI-personal/blob/master/jobs/linux/backup_chess.job)
+  - remove the `evry tag` for the [job that updates my chess games](https://github.com/purarue/HPI-personal/blob/master/jobs/linux/backup_chess.job)
   - print 'chess'
 - If anything was printed by the script:
   - I know at least one thing has expired, so I run `bgproc_on_machine` to update all the expired data
   - Run [index](./index) to update the `my_feed` database on my server
 
-`feed_check` runs [once every 15 minutes](https://github.com/seanbreckenridge/dotfiles/blob/df69db98e0256e7d9eb5f77cd1af9a354d782eaf/.local/scripts/supervisor_jobs/linux/my_feed_index_bg.job#L21-L27), so my data is never more than 15 minutes out of date.
+`feed_check` runs [once every 15 minutes](https://github.com/purarue/dotfiles/blob/df69db98e0256e7d9eb5f77cd1af9a354d782eaf/.local/scripts/supervisor_jobs/linux/my_feed_index_bg.job#L21-L27), so my data is never more than 15 minutes out of date.
 
 Example output:
 
@@ -197,20 +197,20 @@ Example output:
 [I 230921 15:44:20 feed_check:42] Requesting https://sean.fish/feed_api/data/?offset=0&order_by=when&sort=desc&limit=10&ftype=trakt_history_movie,trakt_history_episode
 [I 230921 15:44:21 feed_check:213] Checking 'check_chess'
 [I 230921 15:44:21 feed_check:42] Requesting https://sean.fish/feed_api/data/?offset=0&order_by=when&sort=desc&limit=10&ftype=chess
-Requesting https://api.chess.com/pub/player/seanbreckenridge/games/archives
-Requesting https://api.chess.com/pub/player/seanbreckenridge/games/2023/09
+Requesting https://api.chess.com/pub/player/purarue/games/archives
+Requesting https://api.chess.com/pub/player/purarue/games/2023/09
 [I 230921 15:44:22 feed_check:213] Checking 'check_mpv'
 [I 230921 15:44:23 feed_check:42] Requesting https://sean.fish/feed_api/data/?offset=0&order_by=when&sort=desc&limit=500&ftype=listen
 [I 230921 15:44:23 feed_check:213] Checking 'check_listens'
 [I 230921 15:44:23 feed_check:42] Requesting https://sean.fish/feed_api/data/?offset=0&order_by=when&sort=desc&limit=500&ftype=listen
-[D 230921 15:44:25 export:62] Requesting https://api.listenbrainz.org/1/user/seanbreckenridge/listens?count=100
+[D 230921 15:44:25 export:62] Requesting https://api.listenbrainz.org/1/user/purarue/listens?count=100
 [D 230921 15:44:25 export:84] Have 100, now searching for listens before 2023-09-11 04:39:08...
 [I 230921 15:44:25 feed_check:213] Checking 'check_mal'
 [I 230921 15:44:25 feed_check:42] Requesting https://sean.fish/feed_api/data/?offset=0&order_by=when&sort=desc&limit=50&ftype=anime,anime_episode
 Expired: mpv.history
-removed '/home/sean/.local/share/evry/data/my-feed-index-bg'
+removed '/home/username/.local/share/evry/data/my-feed-index-bg'
 2023-09-21T15-44-35:bg-feed-index:running my_feed index...
 Indexing...
 ```
 
-This also has the upside of updating my local data whenever there are any changes to the data sources, which means any scripts using the corresponding [`HPI`](https://github.com/seanbreckenridge/HPI) modules also stay up to date.
+This also has the upside of updating my local data whenever there are any changes to the data sources, which means any scripts using the corresponding [`HPI`](https://github.com/purarue/HPI) modules also stay up to date.

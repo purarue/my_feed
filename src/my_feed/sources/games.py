@@ -175,7 +175,7 @@ def osrs() -> Iterator[FeedItem]:
 
 
 # TODO: make configurable through config file?
-CHESS_USERNAME = os.environ.get("CHESS_USERNAME", "seanbreckenridge")
+CHESS_USERNAME = os.environ.get("CHESS_USERNAME", "purarue")
 
 
 def chess() -> Iterator[FeedItem]:

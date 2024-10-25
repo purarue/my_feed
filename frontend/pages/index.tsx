@@ -280,7 +280,7 @@ const Page: NextPage<IndexProps> = ({ prefs }: IndexProps) => {
     <>
       <Head>
         <title>feed</title>
-        {/* https://github.com/seanbreckenridge/back-arrow-script/*/}
+        {/* https://github.com/purarue/back-arrow-script/*/}
         <meta property="ba:title" content="back home" />
         <meta property="ba:url" content="https://sean.fish" />
         <meta property="ba:color" content="#45a29e" />

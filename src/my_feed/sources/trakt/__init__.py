@@ -1,6 +1,6 @@
 """
-Use https://github.com/seanbreckenridge/traktexport
-(through my https://github.com/seanbreckenridge/HPI trakt.py file)
+Use https://github.com/purarue/traktexport
+(through my https://github.com/purarue/HPI trakt.py file)
 to get feed data for movies and TV episodes
 
 Use TMDB to fetch image and release date information for feed items

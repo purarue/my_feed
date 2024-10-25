@@ -1,6 +1,6 @@
 """
 A small TMDB API client which caches data in a local directory using
-a subclassed https://github.com/seanbreckenridge/url_cache
+a subclassed https://github.com/purarue/url_cache
 """
 
 import os

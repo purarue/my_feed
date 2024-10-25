@@ -30,7 +30,7 @@ def _sources() -> Iterator[Callable[[], Iterator[FeedItem]]]:
         from my.config.feed import sources  # type: ignore[import]
     except Exception:
         click.echo(
-            "Could not import sources from my.config.feed, see docs or https://github.com/seanbreckenridge/dotfiles/blob/master/.config/my/my/config/feed.py as an example",
+            "Could not import sources from my.config.feed, see docs or https://github.com/purarue/dotfiles/blob/master/.config/my/my/config/feed.py as an example",
             err=True,
         )
         return
@@ -182,7 +182,7 @@ def index(
     # so, I suppose when trying to exit, since we never finished using the generator,
     # its still trying to write, but we exit so it fails to write to the closed db
     #
-    # for posterity: https://gist.github.com/seanbreckenridge/58f0b9f9dbcfeb970270e7fba99604d7
+    # for posterity: https://gist.github.com/purarue/58f0b9f9dbcfeb970270e7fba99604d7
     # try:
     #     from my.time.tz.via_location import loc_tz_getter
     #

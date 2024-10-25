@@ -11,21 +11,21 @@ This will create a `./backend/main` executable, which has the `backend` folder p
 ```
 Usage of ./main:
   -data-dir string
-    	Data directory for JSON files (default "/home/sean/Repos/my_feed/backend/data")
+    	Data directory for JSON files (default "/home/username/Repos/my_feed/backend/data")
   -db-path string
-    	Path to sqlite database file (default "/home/sean/Repos/my_feed/backend/feeddata.sqlite")
+    	Path to sqlite database file (default "/home/username/Repos/my_feed/backend/feeddata.sqlite")
   -db-uri string
     	Database URI (overrides db-path)
   -echo
     	Echo SQL queries
   -ftypes-file string
-    	Path to feedtypes.json file (default "/home/sean/Repos/my_feed/backend/feedtypes.json")
+    	Path to feedtypes.json file (default "/home/username/Repos/my_feed/backend/feedtypes.json")
   -log-requests
     	Log info from HTTP requests to stderr
   -port int
     	Port to listen on (default 5100)
   -root-dir string
-    	Root dir for backend (same dir as 'build' script) (default "/home/sean/Repos/my_feed/backend")
+    	Root dir for backend (same dir as 'build' script) (default "/home/username/Repos/my_feed/backend")
 ```
 
 You can check the [`index`](./index) script for how I use this, but generally:

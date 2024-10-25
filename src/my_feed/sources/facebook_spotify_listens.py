@@ -3,7 +3,7 @@ When I had my spotify connected to Facebook, it would send action events
 every time I listened to a song
 
 This parses that info from the facebook GDPR export, using
-https://github.com/seanbreckenridge/HPI/blob/master/my/facebook/gdpr.py
+https://github.com/purarue/HPI/blob/master/my/facebook/gdpr.py
 """
 
 import re

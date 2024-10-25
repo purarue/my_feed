@@ -1,6 +1,6 @@
 """
 Gets anime/manga from using
-https://github.com/seanbreckenridge/malexport
+https://github.com/purarue/malexport
 """
 
 import os
@@ -232,7 +232,7 @@ def _deleted_manga() -> Iterator[FeedItem]:
 
 
 # items which have been deleted from MAL
-# https://github.com/seanbreckenridge/malexport/#recover_deleted
+# https://github.com/purarue/malexport/#recover_deleted
 def deleted_history() -> Iterator[FeedItem]:
     yield from _deleted_anime()
     yield from _deleted_manga()

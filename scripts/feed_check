@@ -178,7 +178,7 @@ def check_trakt(**kwargs: str) -> str | None:
 def check_mal(**kwargs: str) -> str | None:
     # this doesn't check MAL for episodes, just for local manual-history episodes I might have logged
     # or updates from running malexport_partial_update manually
-    # https://github.com/seanbreckenridge/HPI-personal/blob/master/scripts/malexport_partial_update
+    # https://github.com/purarue/HPI-personal/blob/master/scripts/malexport_partial_update
     from my_feed.sources.mal import _anime
 
     remote_ids = [data["id"] for data in request_data("anime,anime_episode", limit=50)]
