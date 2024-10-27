@@ -16,7 +16,7 @@ from ..log import logger
 def _image_url(data: Union[mal.AnimeData, mal.MangaData]) -> Optional[str]:
     if data.APIList is None:
         # TODO: fetch from dbsentinel?
-        # https://dbsentinel.sean.fish/
+        # https://dbsentinel.purarue.xyz/
         return None
     api_images = data.APIList.main_picture
     for k in (

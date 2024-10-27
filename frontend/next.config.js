@@ -7,7 +7,7 @@ const nextConfig = {
   reactStrictMode: true,
   basePath: basePath,
   images: {
-    domains: ["localhost", "sean.fish"],
+    domains: ["localhost", "purarue.xyz"],
     loader: "custom",
   },
   i18n: {

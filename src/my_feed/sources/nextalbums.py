@@ -1,6 +1,6 @@
 """
 Gets albums I've listened to from my spreadsheet
-https://sean.fish/s/albums
+https://purarue.xyz/s/albums
 """
 
 import warnings

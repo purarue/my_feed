@@ -282,10 +282,10 @@ const Page: NextPage<IndexProps> = ({ prefs }: IndexProps) => {
         <title>feed</title>
         {/* https://github.com/purarue/back-arrow-script/*/}
         <meta property="ba:title" content="back home" />
-        <meta property="ba:url" content="https://sean.fish" />
+        <meta property="ba:url" content="https://purarue.xyz" />
         <meta property="ba:color" content="#45a29e" />
         <meta name="description" content="my personal media feed" />
-        <link rel="icon" href="https://sean.fish/favicon.ico" />
+        <link rel="icon" href="https://purarue.xyz/favicon.ico" />
       </Head>
       <main className={styles.main}>
         <nav className={styles.nav}>
@@ -440,7 +440,7 @@ const Page: NextPage<IndexProps> = ({ prefs }: IndexProps) => {
           )}
         </div>
       </main>
-      <Script src="https://sean.fish/p/back-arrow-bundle.js" strategy="beforeInteractive"></Script>
+      <Script src="https://purarue.xyz/p/back-arrow-bundle.js" strategy="beforeInteractive"></Script>
     </>
   )
 }

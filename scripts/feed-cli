@@ -100,7 +100,7 @@ assert isinstance(feed_types, list)
 @click.option("--debug", is_flag=True, default=False, help="print feed urls")
 @click.option(
     "--base-url",
-    default="https://sean.fish/feed_api/data/",
+    default="https://purarue.xyz/feed_api/data/",
     help="data url to request against",
     show_default=True,
 )

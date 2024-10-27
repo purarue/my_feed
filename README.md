@@ -1,6 +1,6 @@
 A personal feed/website using [`HPI`](https://github.com/purarue/HPI)
 
-Live at <https://sean.fish/feed/>
+Live at <https://purarue.xyz/feed/>
 
 <img src="https://github.com/purarue/my_feed/blob/master/.github/my_feed.png" width=500/>
 
@@ -8,7 +8,7 @@ This uses:
 
 - `python`: to get my data using [HPI](https://github.com/purarue/HPI), and to cleanup/enrich it with some local data/cached API requests. `my_feed index` is called in the [`index`](./index) script, which syncs a JSON file up to the server which `backend` can combine into the sqlite database
 - `golang`: basic REST API to let frontend paginate through the data, authenticated endpoints for updating the sqlite database
-- `typescript`: public-facing [frontend](https://sean.fish/feed/); requests to the backend, lets user filter/order/search the data
+- `typescript`: public-facing [frontend](https://purarue.xyz/feed/); requests to the backend, lets user filter/order/search the data
 
 ### Data Sources:
 
@@ -28,7 +28,7 @@ This uses:
 
 If not mentioned its likely a module in [HPI](https://github.com/purarue/HPI)
 
-I periodically index all my data [in the background](https://sean.fish/d/my_feed_index_bg.job?redirect):
+I periodically index all my data [in the background](https://purarue.xyz/d/my_feed_index_bg.job?redirect):
 
 ```
 Extracting my_feed.sources.listens.history...
@@ -57,7 +57,7 @@ Writing to 'backend/data/1644267551.json'
 
 ... which then gets synced up and combined into the `sqlite` database on the [`backend`](./backend/); all handled by [`index`](./index)
 
-That has a [front-end](https://sean.fish/feed/) so I can view/filter/sort stuff and view the data as an infinite scrollable list
+That has a [front-end](https://purarue.xyz/feed/) so I can view/filter/sort stuff and view the data as an infinite scrollable list
 
 Served with `nginx` in prod, like:
 
@@ -190,23 +190,23 @@ Example output:
 
 ```
 [I 230921 15:44:15 feed_check:213] Checking 'check_albums'
-[I 230921 15:44:18 feed_check:42] Requesting https://sean.fish/feed_api/data/?offset=0&order_by=when&sort=desc&limit=500&ftype=album
+[I 230921 15:44:18 feed_check:42] Requesting https://purarue.xyz/feed_api/data/?offset=0&order_by=when&sort=desc&limit=500&ftype=album
 [I 230921 15:44:18 feed_check:213] Checking 'check_trakt'
 [D 230921 15:44:18 export:32] Requesting 'https://api-v2launch.trakt.tv/users/purplepinapples/history?limit=100&page=1'...
 [D 230921 15:44:20 export:46] First item: {'id': 9230963378, 'watched_at': '2023-09-21T08:03:23.000Z', 'action': 'watch', 'type': 'episode', 'episode': {'season': 1, 'number': 1, 'title': 'ROMANCE DAWN', 'ids': {'trakt': 5437335, 'tvdb': 8651297, 'imdb': 'tt11748904', 'tmdb': 2454621, 'tvrage': None}}, 'show': {'title': 'ONE PIECE', 'year': 2023, 'ids': {'trakt': 184618, 'slug': 'one-piece-2023', 'tvdb': 392276, 'imdb': 'tt11737520', 'tmdb': 111110, 'tvrage': None}}}
-[I 230921 15:44:20 feed_check:42] Requesting https://sean.fish/feed_api/data/?offset=0&order_by=when&sort=desc&limit=10&ftype=trakt_history_movie,trakt_history_episode
+[I 230921 15:44:20 feed_check:42] Requesting https://purarue.xyz/feed_api/data/?offset=0&order_by=when&sort=desc&limit=10&ftype=trakt_history_movie,trakt_history_episode
 [I 230921 15:44:21 feed_check:213] Checking 'check_chess'
-[I 230921 15:44:21 feed_check:42] Requesting https://sean.fish/feed_api/data/?offset=0&order_by=when&sort=desc&limit=10&ftype=chess
+[I 230921 15:44:21 feed_check:42] Requesting https://purarue.xyz/feed_api/data/?offset=0&order_by=when&sort=desc&limit=10&ftype=chess
 Requesting https://api.chess.com/pub/player/purarue/games/archives
 Requesting https://api.chess.com/pub/player/purarue/games/2023/09
 [I 230921 15:44:22 feed_check:213] Checking 'check_mpv'
-[I 230921 15:44:23 feed_check:42] Requesting https://sean.fish/feed_api/data/?offset=0&order_by=when&sort=desc&limit=500&ftype=listen
+[I 230921 15:44:23 feed_check:42] Requesting https://purarue.xyz/feed_api/data/?offset=0&order_by=when&sort=desc&limit=500&ftype=listen
 [I 230921 15:44:23 feed_check:213] Checking 'check_listens'
-[I 230921 15:44:23 feed_check:42] Requesting https://sean.fish/feed_api/data/?offset=0&order_by=when&sort=desc&limit=500&ftype=listen
+[I 230921 15:44:23 feed_check:42] Requesting https://purarue.xyz/feed_api/data/?offset=0&order_by=when&sort=desc&limit=500&ftype=listen
 [D 230921 15:44:25 export:62] Requesting https://api.listenbrainz.org/1/user/purarue/listens?count=100
 [D 230921 15:44:25 export:84] Have 100, now searching for listens before 2023-09-11 04:39:08...
 [I 230921 15:44:25 feed_check:213] Checking 'check_mal'
-[I 230921 15:44:25 feed_check:42] Requesting https://sean.fish/feed_api/data/?offset=0&order_by=when&sort=desc&limit=50&ftype=anime,anime_episode
+[I 230921 15:44:25 feed_check:42] Requesting https://purarue.xyz/feed_api/data/?offset=0&order_by=when&sort=desc&limit=50&ftype=anime,anime_episode
 Expired: mpv.history
 removed '/home/username/.local/share/evry/data/my-feed-index-bg'
 2023-09-21T15-44-35:bg-feed-index:running my_feed index...

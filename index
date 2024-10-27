@@ -51,7 +51,7 @@ fi
 if [[ -z "$FEED_REINDEX" ]]; then
 	# if were not re-indexing, fetch the list of IDs we've already indexed from the server
 	# and pass it to the indexer, so it can skip uploading those
-	curl "${CURL_AUTH_OPTS[@]}" -sL 'https://sean.fish/feed_api/data/ids' >"${TMPDIR}/ids.json" || exit $?
+	curl "${CURL_AUTH_OPTS[@]}" -sL 'https://purarue.xyz/feed_api/data/ids' >"${TMPDIR}/ids.json" || exit $?
 	INDEX_ARGS+=("-E" "${TMPDIR}/ids.json")
 	# stuff to ignore here which takes a long time and/or doesn't commonly change
 	# can be pushed just when doing a re-index
@@ -60,7 +60,7 @@ else
 	# running a re-index, so update the approved IDs for computing deleted anime entry data
 	# https://github.com/purarue/malexport/#recover_deleted
 	python3 -m malexport recover-deleted approved-update
-	export RUNELITE_PHOTOS_PREFIX='https://sean.fish/' # set prefix for indexer
+	export RUNELITE_PHOTOS_PREFIX='https://purarue.xyz/' # set prefix for indexer
 	vps_sync_osrs_images || exit $?
 fi
 
@@ -85,7 +85,7 @@ fi
 wait-for-internet -q --timeout "${WFI_TIMEOUT:-10}" || exit 0
 
 # delete remote json files if we want to reset
-[[ -n "$FEED_REINDEX" ]] && auth_curl -sL 'https://sean.fish/feed_api/clear-data-dir'
+[[ -n "$FEED_REINDEX" ]] && auth_curl -sL 'https://purarue.xyz/feed_api/clear-data-dir'
 
 # copy up to the server
 flock ~/.local/feed-sync-lock scp "${JSON}" "${SSH_TARGET}":~/code/my_feed/backend/data
@@ -94,9 +94,9 @@ flock ~/.local/feed-sync-lock scp "${JSON}" "${SSH_TARGET}":~/code/my_feed/backe
 command rm -f "${JSON}"
 rmdir "${TMPDIR}"
 
-url="https://sean.fish/feed_api/check"
+url="https://purarue.xyz/feed_api/check"
 if [[ -n "$FEED_REINDEX" ]]; then
-	url="https://sean.fish/feed_api/recheck"
+	url="https://purarue.xyz/feed_api/recheck"
 	echo 'Running reindex...'
 else
 	echo 'Running update...'
