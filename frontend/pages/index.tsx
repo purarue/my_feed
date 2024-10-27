@@ -440,7 +440,10 @@ const Page: NextPage<IndexProps> = ({ prefs }: IndexProps) => {
           )}
         </div>
       </main>
-      <Script src="https://purarue.xyz/p/back-arrow-bundle.js" strategy="beforeInteractive"></Script>
+      <Script
+        src="https://purarue.xyz/p/back-arrow-bundle.js"
+        strategy="beforeInteractive"
+      ></Script>
     </>
   )
 }
