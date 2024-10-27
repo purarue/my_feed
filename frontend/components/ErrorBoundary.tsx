@@ -36,7 +36,7 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <>
           <Head>
-            <meta httpEquiv="refresh" content="2" />
+            <meta httpEquiv="refresh" content="20" />
           </Head>
           <div className={styles.container}>
             <main className={styles.main}>
