@@ -6,7 +6,7 @@ Live at <https://purarue.xyz/feed/>
 
 This uses:
 
-- `python`: to get my data using [HPI](https://github.com/purarue/HPI), and to cleanup/enrich it with some local data/cached API requests. `my_feed index` is called in the [`index`](./index) script, which syncs a JSON file up to the server which `backend` can combine into the sqlite database
+- `python`: to get my data using [HPI](https://github.com/purarue/HPI), and to cleanup/enrich it with some local data/cached API requests. `my_feed index` is called in the [`feed_index`](./scripts/feed_index) script, which syncs a JSON file up to the server which `backend` can combine into the sqlite database
 - `golang`: basic REST API to let frontend paginate through the data, authenticated endpoints for updating the sqlite database
 - `typescript`: public-facing [frontend](https://purarue.xyz/feed/); requests to the backend, lets user filter/order/search the data
 
@@ -55,7 +55,7 @@ Total: 59599 items
 Writing to 'backend/data/1644267551.json'
 ```
 
-... which then gets synced up and combined into the `sqlite` database on the [`backend`](./backend/); all handled by [`index`](./index)
+... which then gets synced up and combined into the `sqlite` database on the [`backend`](./backend/); all handled by [`feed_index`](./scripts/feed_index)
 
 That has a [front-end](https://purarue.xyz/feed/) so I can view/filter/sort stuff and view the data as an infinite scrollable list
 
@@ -127,7 +127,7 @@ def sources() -> Iterator[Callable[[], Iterator["FeedItem"]]]:
     yield facebook_spotify_listens.history
 ```
 
-The [`index`](./index) script in this repo:
+The [`feed_index`](./scripts/feed_index) script in this repo:
 
 - warms the `my.time.tz.via_location` cache, so that timezones can be estimated for some of the data sources here
 - does an `rsync` for some images hosted here
@@ -182,7 +182,7 @@ So all of these follow some pattern like (e.g. for `chess`)
   - print 'chess'
 - If anything was printed by the script:
   - I know at least one thing has expired, so I run `bgproc_on_machine` to update all the expired data
-  - Run [index](./index) to update the `my_feed` database on my server
+  - Run [scripts/feed_index](./scripts/feed_index) to update the `my_feed` database on my server
 
 `feed_check` runs [once every 15 minutes](https://github.com/purarue/dotfiles/blob/df69db98e0256e7d9eb5f77cd1af9a354d782eaf/.local/scripts/supervisor_jobs/linux/my_feed_index_bg.job#L21-L27), so my data is never more than 15 minutes out of date.
 

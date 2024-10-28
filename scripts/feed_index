@@ -1,16 +1,8 @@
-#!/usr/bin/env zsh
+#!/usr/bin/env bash
 # if FEED_REINDEX=1 ./index , this removes all the data from the remote database and re-builds it
 # the remote database and re-builds it
 
-cd "$(realpath "$(dirname "${BASH_SOURCE[0]}")")" || exit $?
-with_secrets_script="${HOME}/.local/scripts/generic/with-secrets"
-if [[ -f "$with_secrets_script" ]]; then
-	echo 'Sourcing secrets file...' >&2
-	source "$with_secrets_script" || true
-else
-	echo 'Missing with-secrets script' >&2
-	exit 1
-fi
+THIS_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 
 set -e
 set -o pipefail
@@ -88,7 +80,7 @@ wait-for-internet -q --timeout "${WFI_TIMEOUT:-10}" || exit 0
 [[ -n "$FEED_REINDEX" ]] && auth_curl -sL 'https://purarue.xyz/feed_api/clear-data-dir'
 
 # copy up to the server
-flock ~/.local/feed-sync-lock scp "${JSON}" "${SSH_TARGET}":~/code/my_feed/backend/data
+flock ~/.local/feed-sync-lock "${THIS_DIR}/sync_with_retry" "${JSON}" "${SSH_TARGET}":~/code/my_feed/backend/data
 
 # delete temp file
 command rm -f "${JSON}"
