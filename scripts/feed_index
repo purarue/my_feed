@@ -63,8 +63,8 @@ flock ~/.local/feed-lock my_feed index "${INDEX_ARGS[@]}" "$JSON" || exit $?
 COUNT="$(cat "${TMPDIR}/count.txt")"
 
 # if ids.json/count.txt file exists, delete it
-[[ -f "${TMPDIR}/ids.json" ]] && command rm -fv "${TMPDIR}/ids.json"
-[[ -f "${TMPDIR}/count.txt" ]] && command rm -fv "${TMPDIR}/count.txt"
+[[ -f "${TMPDIR}/ids.json" ]] && command rm -f "${TMPDIR}/ids.json"
+[[ -f "${TMPDIR}/count.txt" ]] && command rm -f "${TMPDIR}/count.txt"
 
 # if the json file is empty, don't bother uploading
 if [[ "$COUNT" -eq 0 ]]; then
