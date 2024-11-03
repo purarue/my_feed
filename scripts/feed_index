@@ -52,8 +52,9 @@ else
 	# running a re-index, so update the approved IDs for computing deleted anime entry data
 	# https://github.com/purarue/malexport/#recover_deleted
 	python3 -m malexport recover-deleted approved-update
-	export RUNELITE_PHOTOS_PREFIX='https://purarue.xyz/' # set prefix for indexer
+	export RUNELITE_PHOTOS_PREFIX='https://purarue.xyz/p/' # set prefix for indexer
 	vps_sync_osrs_images || exit $?
+	REMSYNC_PUBLIC=1 remsync
 fi
 
 # write count to file

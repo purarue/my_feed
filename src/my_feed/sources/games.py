@@ -1,6 +1,7 @@
 import os
 import string
 import warnings
+from urllib.parse import urljoin, urlsplit, urlunsplit
 from typing import Iterator, Optional, Dict, Any, cast, Literal
 from datetime import datetime, date
 from functools import cache
@@ -156,7 +157,18 @@ def osrs() -> Iterator[FeedItem]:
         dt = localize(sc.dt)
         if "HPIDATA" in os.environ:
             if prefix := os.getenv("RUNELITE_PHOTOS_PREFIX"):
-                img = os.path.join(prefix, str(sc.path).lstrip(os.environ["HPIDATA"]))
+                parts = urlsplit(prefix)
+                img = urlunsplit(
+                    [
+                        parts.scheme,
+                        parts.netloc,
+                        parts.path.rstrip("/")
+                        + "/"
+                        + str(sc.path)[len(os.environ["HPIDATA"]) :].lstrip("/"),
+                        "",
+                        "",
+                    ]
+                )
         if isinstance(sc.description, Level):
             id_ = f"osrs_level_{sc.description.skill.casefold()}_{sc.description.level}_{int(dt.timestamp())}"
             desc = f"{sc.description.skill} Level {sc.description.level}"
