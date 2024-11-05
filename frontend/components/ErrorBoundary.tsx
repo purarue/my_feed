@@ -40,7 +40,7 @@ class ErrorBoundary extends Component<Props, State> {
           </Head>
           <div className={styles.container}>
             <main className={styles.main}>
-              <h3>{`Error: Website is currently being updated, this page will automatically refresh when its done`}</h3>
+              <h3>{`Error: There was an error, or the website is currently being updated, this page will automatically refresh when its done`}</h3>
               {this.state.errors.map((error, index) => (
                 <div key={index}>{error.message}</div>
               ))}
