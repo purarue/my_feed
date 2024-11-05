@@ -233,7 +233,7 @@ func updateDatabaseFromJsonFiles(db *sql.DB, config *Config) (int, error) {
 			funcErr = err
 			// unlink file, since we couldn't load it
 			// if we don't do this, we'll keep trying to load it
-			log.Printf("error loading %s: %s\n", jsonFiles[0], err.Error())
+			log.Printf("error loading %s, removing file: %s\n", jsonFiles[0], err.Error())
 			os.Remove(jsonFiles[0])
 		}
 		totalAdded += added
