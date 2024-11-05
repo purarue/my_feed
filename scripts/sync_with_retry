@@ -12,13 +12,17 @@ fi
 THIS_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 cd "${THIS_DIR}/.." || exit $?
 
+declare ARGS
+ARGS=("$@")
+
 run_sync() {
-	printf "Running scp '%s'\n" "$*" >&2
-	scp "$@" || return $?
+	printf "Running scp '%s'\n" "${ARGS[*]}" >&2
+	scp "${ARGS[@]}" || return $?
 }
 
 rs() {
-	local count=1
+	local count="${1:-1}"
+	printf 'Try %s\n' "$count"
 	if ((count > 10)); then
 		return 2
 	fi
@@ -26,11 +30,11 @@ rs() {
 		echo "Waiting..." >&2
 		sleep 1
 	fi
-	if run_sync "$@"; then
+	if run_sync; then
 		return 0
 	else
 		rs "$((count + 1))" || return $?
 	fi
 }
 
-rs "$@" || exit $?
+rs || exit $?

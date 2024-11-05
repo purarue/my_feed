@@ -43,7 +43,7 @@ fi
 if [[ -z "$FEED_REINDEX" ]]; then
 	# if were not re-indexing, fetch the list of IDs we've already indexed from the server
 	# and pass it to the indexer, so it can skip uploading those
-	curl "${CURL_AUTH_OPTS[@]}" -sL 'https://purarue.xyz/feed_api/data/ids' >"${TMPDIR}/ids.json" || exit $?
+	auth_curl -sL 'https://purarue.xyz/feed_api/data/ids' >"${TMPDIR}/ids.json" || exit $?
 	INDEX_ARGS+=("-E" "${TMPDIR}/ids.json")
 	# stuff to ignore here which takes a long time and/or doesn't commonly change
 	# can be pushed just when doing a re-index
@@ -94,4 +94,4 @@ if [[ -n "$FEED_REINDEX" ]]; then
 else
 	echo 'Running update...'
 fi
-curl "${CURL_AUTH_OPTS[@]}" -sL "$url" | jq 'to_entries[] | select(.value != null) | "\(.key): \(.value)"' -r
+auth_curl -sL "$url" | jq 'to_entries[] | select(.value != null) | "\(.key): \(.value)"' -r
