@@ -159,11 +159,11 @@ func stringQuery(db *sql.DB, query string) []string {
 }
 
 func modelIds(db *sql.DB) []string {
-	return stringQuery(db, "SELECT id FROM feedmodel")
+	return stringQuery(db, `SELECT id FROM feedmodel`)
 }
 
 func feedTypes(db *sql.DB) []string {
-	return stringQuery(db, "SELECT DISTINCT(ftype) FROM feedmodel")
+	return stringQuery(db, `SELECT DISTINCT(ftype) FROM feedmodel`)
 }
 
 func clearDatabase(db *sql.DB) (int, error) {
@@ -214,7 +214,7 @@ func clearDataDir(config *Config) error {
 // https://www.sqlite.org/pragma.html#pragma_wal_checkpoint
 func truncateWal(db *sql.DB) error {
 	log.Println("Truncating WAL...")
-	_, err := db.Exec("PRAGMA wal_checkpoint(TRUNCATE)")
+	_, err := db.Exec(`PRAGMA wal_checkpoint(TRUNCATE)`)
 	return err
 }
 
