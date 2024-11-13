@@ -19,7 +19,6 @@ from mutagen.mp3 import MP3, MutagenError  # type: ignore[import]
 from mutagen.easyid3 import EasyID3  # type: ignore[import]
 from my.mpv.history_daemon import history as mpv_history, Media
 from mpv_history_daemon.utils import music_parse_metadata_from_blob, MediaAllowed
-from my.utils.input_source import InputSource
 
 from .model import FeedItem
 from ..log import logger
@@ -265,14 +264,10 @@ matcher = MediaAllowed(
 )
 
 
-def history(from_paths: Optional[InputSource] = None) -> Iterator[FeedItem]:
+def history() -> Iterator[FeedItem]:
     allow_before = (datetime.now() - timedelta(minutes=5)).timestamp()
 
-    kwargs = {}
-    if from_paths is not None:
-        kwargs["from_paths"] = from_paths
-
-    for media in mpv_history(**kwargs):
+    for media in mpv_history():
         if not matcher.is_allowed(media):
             logger.debug(f"Skipping, not allowed: {media}")
             continue
