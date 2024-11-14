@@ -94,18 +94,17 @@ def _anime_episode_url(
             for ssn in seasons:
                 for ep in range(1, ssn["ep_count"] + 1):
                     trakt_episodes.append((ssn["num"], ep))
-            # this may not always be true if there is an offset, need to account for that
             assert len(trakt_episodes) == sum(s["ep_count"] for s in seasons)
             try:
                 season_episode = trakt_episodes[episode + offset - 1]
             except IndexError:
                 # this typically meant there was a mismatch between MAL and TMDB on specials/something else
                 logger.warning(
-                    f"Failed to index episode {episode} offset {offset} in trakt episodes data {len(trakt_episodes)}"
+                    f"Failed to index {data.XMLData.title} episode {episode} offset {offset} in trakt episodes data {len(trakt_episodes)}"
                 )
                 return _image_url(data), ["i_poster"]
             else:
-                img, _ = _destructure_img_result(
+                img, flags = _destructure_img_result(
                     fetch_image_by_params(
                         tv_id=tmdb_data["tmdb_id"],
                         season=season_episode[0],
@@ -114,7 +113,7 @@ def _anime_episode_url(
                 )
                 # if no image from tmdb, then just default to MAL
                 if img is not None:
-                    return img, ["i_still"]
+                    return img, flags
         elif tmdb_data["media_type"] == "movie":
             img, flags = _destructure_img_result(
                 fetch_image_by_params(movie_id=tmdb_data["tmdb_id"])
