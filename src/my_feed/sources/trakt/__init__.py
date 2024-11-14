@@ -37,39 +37,60 @@ def _fetch_image(url: str, width: int) -> Optional[Tuple[str, List[str]]]:
     return None
 
 
-def get_image(
-    media_data: Union[D.Movie, D.Episode, D.Show], *, width: int = 400
+def fetch_image_by_params(
+    *,
+    movie_id: Optional[int] = None,
+    tv_id: Optional[int] = None,
+    season: Optional[int] = None,
+    episode: Optional[int] = None,
+    width: int = 400,
 ) -> Optional[Tuple[str, List[str]]]:
     """
-    Get an image for particular media data
-    For movies, uses the movies endpoint
+    - Movie image if movie_id is provided
+    - Episode image if tv_id, season, and episode are provided
+    - Season image if tv_id and season are provided
+    - Show image if only tv_id is provided
 
     For episodes, if there is no image for the episode, uses the season poster. If there's
     no season poster, uses the show poster
     """
-    if isinstance(media_data, D.Movie):
-        if movie_id := media_data.ids.tmdb_id:
-            if poster := _fetch_image(f"{BASE_URL}/movie/{movie_id}", width=width):
-                return poster
-    elif isinstance(media_data, D.Episode):
-        # try episode, then season, then tv show
-        if tv_id := media_data.show.ids.tmdb_id:
-            if poster := _fetch_image(
-                f"{BASE_URL}/tv/{tv_id}/season/{media_data.season}/episode/{media_data.episode}",
-                width,
+    if movie_id:
+        return _fetch_image(f"{BASE_URL}/movie/{movie_id}", width=width)
+    elif tv_id:
+        if episode is not None and season is not None:
+            if episode_poster := _fetch_image(
+                f"{BASE_URL}/tv/{tv_id}/season/{season}/episode/{episode}", width
             ):
-                return poster
-            elif season_poster := _fetch_image(
-                f"{BASE_URL}/tv/{tv_id}/season/{media_data.season}", width
+                return episode_poster
+        if season is not None:
+            if season_poster := _fetch_image(
+                f"{BASE_URL}/tv/{tv_id}/season/{season}", width
             ):
                 return season_poster
-            elif show_poster := _fetch_image(f"{BASE_URL}/tv/{tv_id}", width):
-                return show_poster
-    elif isinstance(media_data, D.Show):
-        if tv_id := media_data.ids.tmdb_id:
-            if show_poster := _fetch_image(f"{BASE_URL}/tv/{tv_id}", width):
-                return show_poster
+        return _fetch_image(f"{BASE_URL}/tv/{tv_id}", width)
     return None
+
+
+def get_image(
+    media_data: Union[D.Movie, D.Episode, D.Show], *, width: int = 400
+) -> Optional[Tuple[str, List[str]]]:
+    """
+    Wrapper function to maintain compatibility with the old get_image signature.
+    Extracts necessary parameters from media_data and calls fetch_image_by_params.
+    """
+    if isinstance(media_data, D.Movie):
+        movie_id = media_data.ids.tmdb_id
+        return fetch_image_by_params(movie_id=movie_id, width=width)
+    elif isinstance(media_data, D.Episode):
+        tv_id = media_data.show.ids.tmdb_id
+        season = media_data.season
+        episode = media_data.episode
+        return fetch_image_by_params(
+            tv_id=tv_id, season=season, episode=episode, width=width
+        )
+    elif isinstance(media_data, D.Show):
+        tv_id = media_data.ids.tmdb_id
+        return fetch_image_by_params(tv_id=tv_id, width=width)
 
 
 def get_release_date(media_data: Union[D.Movie, D.Episode, D.Show]) -> Optional[date]:

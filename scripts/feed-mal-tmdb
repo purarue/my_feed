@@ -1,0 +1,159 @@
+#!/usr/bin/env python3
+
+import os
+import typing
+import json
+from pathlib import Path
+
+from trakt_watch.__main__ import _search_trakt, MovieId, TVShowId
+from trakt.tv import TVShow, TVSeason
+import my.mal.export as mal
+from my_feed.sources.mal import TMDBInfo, load_mal_tmdb_mapping, TMDBMapping, SeasonInfo
+
+import click
+
+fl = os.environ.get("MAL_TMDB_MAPPING")
+if not fl:
+    raise ValueError("set MAL_TMDB_MAPPING")
+flp = Path(fl)
+TMDB_MAPPING: TMDBMapping = load_mal_tmdb_mapping()
+
+
+def write_to_file() -> None:
+    data_ser = json.dumps(TMDB_MAPPING, indent=2)
+    flp.write_text(data_ser)
+
+
+def _iter_anime_info() -> typing.Iterator[mal.AnimeData]:
+    for an in mal.anime():
+        if len(an.history) > 0:
+            yield an
+
+
+# TODO: add other strategies
+def _pick_next_mal_item() -> typing.Iterator[mal.AnimeData]:
+    items = list(_iter_anime_info())
+    items.sort(key=lambda x: len(x.history), reverse=True)
+    yield from items
+
+
+@click.command()
+def main() -> None:
+    for anime in _pick_next_mal_item():
+        if str(anime.id) in TMDB_MAPPING:
+            continue
+        titles = []
+        if anime.APIList:
+            titles.append(anime.APIList.title)
+            for alt in anime.APIList.alternative_titles.values():
+                titles.append(alt)
+        elif anime.XMLData:
+            titles.append(anime.XMLData.title)
+
+        termsize = os.get_terminal_size()
+        click.echo("=" * (termsize.columns))
+        click.echo(f"https://myanimelist.net/anime/{anime.id}")
+        for title in titles:
+            click.secho(f"  {title}", fg="blue")
+
+        if click.confirm("Ignore?", default=False):
+            TMDB_MAPPING[str(anime.id)] = None
+            write_to_file()
+            continue
+
+        chosen = _search_trakt()
+        if isinstance(chosen, MovieId):
+            continue
+        elif isinstance(chosen, TVShowId):
+            tv: TVShow = chosen.trakt()
+            seasons: typing.List[TVSeason] = [
+                s for s in tv.seasons if isinstance(s, TVSeason)
+            ]
+            non_zero = [s for s in seasons if s.season > 0]
+            total_episodes = sum(len(s) for s in non_zero)
+
+            # if this happens to match, then we're all good
+            if total_episodes == anime.XMLData.episodes:
+                ids = tv.ids["ids"]
+                trk_id = ids["trakt"]
+                assert isinstance(trk_id, int), f"trk_id: {trk_id} {ids}"
+                tmdb_id = ids["tmdb"]
+                assert isinstance(tmdb_id, int), f"tmdb_id: {tmdb_id} {ids}"
+                TMDB_MAPPING[str(anime.id)] = TMDBInfo(
+                    trakt_id=trk_id,
+                    tmdb_id=tmdb_id,
+                    media_type="tv",
+                    # this means start at season 1 and just offset the IDs normally
+                    season=None,
+                    episode_offset=None,
+                    season_info=[
+                        SeasonInfo(num=s.season, ep_count=len(s.episodes))
+                        for s in seasons
+                    ],
+                )
+                write_to_file()
+            else:
+                click.secho(
+                    f"Could not match trakt {total_episodes} to MAL {anime.XMLData.episodes}",
+                    fg="red",
+                )
+                # see if one of the seasons matches?
+                click.echo(
+                    f"https://trakt.tv/shows/{tv.ids['ids'].get('trakt_slug') or tv.ids['ids'].get('trakt')}"
+                )
+                for i, ssn in enumerate(seasons, 1):
+                    color = (
+                        "green" if len(ssn.episodes) == anime.XMLData.episodes else None
+                    )
+                    click.secho(
+                        f"  {i}. MAL {anime.XMLData.episodes} | Trakt Season {ssn.season} {len(ssn.episodes)}",
+                        fg=color,
+                    )
+                resp = click.prompt("Pick season, O to offset, or U to ignore").lower()
+                if resp == "u":
+                    TMDB_MAPPING[str(anime.id)] = None
+                    write_to_file()
+                elif resp.isnumeric():
+                    chosen = seasons[int(resp) - 1]
+                    chosen_season = chosen.season
+                    confirmed = len(chosen.episodes) == anime.XMLData.episodes
+                    if not confirmed:
+                        click.secho(
+                            f"Could not match {len(chosen.episodes)} to {anime.XMLData.episodes}",
+                            fg="red",
+                        )
+                        if click.confirm("Set anyways?", default=True):
+                            confirmed = True
+                    if confirmed:
+                        trakt_id = chosen.ids["ids"].get("trakt")
+                        tmdb_id = chosen.ids["ids"].get("tmdb")
+                        assert isinstance(
+                            trakt_id, int
+                        ), f"trk_id: {trakt_id} {chosen.ids}"
+                        assert isinstance(
+                            tmdb_id, int
+                        ), f"tmdb_id: {tmdb_id} {chosen.ids}"
+                        TMDB_MAPPING[str(anime.id)] = TMDBInfo(
+                            trakt_id=trakt_id,
+                            tmdb_id=tmdb_id,
+                            media_type="tv",
+                            season=chosen_season,
+                            episode_offset=None,
+                            season_info=[
+                                SeasonInfo(num=s.season, ep_count=len(s.episodes))
+                                for s in seasons
+                            ],
+                        )
+                        write_to_file()
+                    else:
+                        raise ValueError("TODO: offset here maybe? fail?")
+                elif resp == "o":
+                    raise ValueError("TODO: implement episode offset")
+                else:
+                    raise ValueError("Invalid input {}")
+        else:
+            raise ValueError(f"Invalid input type: {type(chosen)}")
+
+
+if __name__ == "__main__":
+    main()

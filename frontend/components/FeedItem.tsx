@@ -269,7 +269,7 @@ export const FeedBody: React.FC<FeedBodyProps> = React.memo(({ item }: FeedBodyP
     return (
       <div className={styles.cardFlexBody}>
         <CardHeader title={item.title} icon={icon} link={item.url} />
-        <CardImage src={item.image_url} alt={item.title} minHeight="25" flags={item.flags} />
+        <CardImage src={item.image_url} alt={item.title} flags={item.flags} />
         {item.subtitle && <p className={styles.subtitle}>{item.subtitle}</p>}
         <CardFooter dt={item.when} score={sc} releaseDate={item.release_date} />
       </div>

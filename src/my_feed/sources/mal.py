@@ -4,6 +4,9 @@ https://github.com/purarue/malexport
 """
 
 import os
+import typing
+import json
+from pathlib import Path
 from datetime import datetime, timezone
 from typing import Iterator, Optional, Union
 
@@ -26,6 +29,86 @@ def _image_url(data: Union[mal.AnimeData, mal.MangaData]) -> Optional[str]:
         if img_url := api_images.get(k):
             return img_url
     return None
+
+
+from .trakt.tmdb import tmdb_urlcache, TMDBCache
+
+TMDB_CACHE: TMDBCache | None = None
+
+
+class SeasonInfo(typing.TypedDict):
+    num: int
+    ep_count: int
+
+
+class TMDBInfo(typing.TypedDict):
+    trakt_id: int
+    tmdb_id: int
+    media_type: typing.Literal["movie", "tv"]
+    season: int | None
+    episode_offset: int | None
+    season_info: list[SeasonInfo]
+
+
+TMDBMapping = typing.Dict[str, TMDBInfo | None]
+
+
+def load_mal_tmdb_mapping() -> TMDBMapping:
+    if "MAL_TMDB_MAPPING" not in os.environ:
+        return {}
+    pth = Path(os.environ["MAL_TMDB_MAPPING"])
+    if pth.exists():
+        dat: TMDBMapping = json.loads(pth.read_text())
+        return dat
+    return {}
+
+
+EPISODE_MAPPING: TMDBMapping = load_mal_tmdb_mapping()
+TMDB_CACHE = tmdb_urlcache()
+
+
+def _anime_episode_url(
+    data: mal.AnimeData, episode: int
+) -> typing.Tuple[Optional[str], typing.List[str]]:
+    from .trakt import fetch_image_by_params, _destructure_img_result
+
+    if TMDB_CACHE is None:
+        return _image_url(data), ["i_poster"]
+    if str(data.id) in EPISODE_MAPPING:
+        assert episode >= 1
+        tvdata = EPISODE_MAPPING[str(data.id)]
+        if (
+            tvdata is not None
+            and tvdata["media_type"] == "tv"
+            and tvdata["season_info"]
+        ):
+            # offset the MAL episode number to the correct TMDB season/episode
+            season = tvdata["season"] if tvdata["season"] is not None else 1
+            offset = (
+                tvdata["episode_offset"] if tvdata["episode_offset"] is not None else 0
+            )
+            season_info = tvdata["season_info"]
+            seasons = [s for s in season_info if s["num"] >= season]
+            trakt_episodes: typing.List[typing.Tuple[int, int]] = []
+            for ssn in seasons:
+                for ep in range(1, ssn["ep_count"] + 1):
+                    trakt_episodes.append((ssn["num"], ep))
+            # this may not always be true if there is an offset, need to account for that
+            assert len(trakt_episodes) == sum(s["ep_count"] for s in seasons)
+            index = episode + offset
+            season_episode = trakt_episodes[index - 1]
+            img, _ = _destructure_img_result(
+                fetch_image_by_params(
+                    tv_id=tvdata["tmdb_id"],
+                    season=season_episode[0],
+                    episode=season_episode[1],
+                    width=400,
+                )
+            )
+            # if no image from tmdb, then just default to MAL
+            if img is not None:
+                return img, ["i_still"]
+    return _image_url(data), ["i_poster"]
 
 
 def _completed_datetime(
@@ -77,12 +160,14 @@ def _anime() -> Iterator[FeedItem]:
         score = float(an.XMLData.score) if an.XMLData.score is not None else None
 
         for hist in an.history:
+            img, flags = _anime_episode_url(an, hist.number)
             yield FeedItem(
                 id=f"anime_episode_{an.id}_{hist.number}_{int(hist.at.timestamp())}",
                 ftype="anime_episode",
+                flags=flags,
                 when=hist.at,
                 url=url,
-                image_url=_image_url(an),
+                image_url=img,
                 subtitle=f"Episode {hist.number}",
                 collection=str(an.id),
                 part=hist.number,  # no reliable season data for anime data
@@ -94,6 +179,7 @@ def _anime() -> Iterator[FeedItem]:
                 yield FeedItem(
                     id=f"anime_entry_{an.id}",
                     ftype="anime",
+                    flags=["i_poster"],
                     when=dt,
                     url=url,
                     image_url=_image_url(an),
@@ -119,6 +205,7 @@ def _manga() -> Iterator[FeedItem]:
             yield FeedItem(
                 id=f"manga_chapter_{mn.id}_{hist.number}_{int(hist.at.timestamp())}",
                 ftype="manga_chapter",
+                flags=["i_poster"],
                 when=hist.at,
                 url=url,
                 collection=str(mn.id),
@@ -133,6 +220,7 @@ def _manga() -> Iterator[FeedItem]:
                 yield FeedItem(
                     id=f"manga_entry_{mn.id}",
                     ftype="manga",
+                    flags=["i_poster"],
                     when=dt,
                     url=url,
                     image_url=_image_url(mn),
@@ -165,6 +253,7 @@ def _deleted_anime() -> Iterator[FeedItem]:
             yield FeedItem(
                 id=f"anime_episode_{an.id}_{hist.number}_{int(hist.at.timestamp())}",
                 ftype="anime_episode",
+                flags=["i_poster"],
                 when=hist.at,
                 url=url,
                 collection=str(an.id),
@@ -180,6 +269,7 @@ def _deleted_anime() -> Iterator[FeedItem]:
                 yield FeedItem(
                     id=f"anime_entry_{an.id}",
                     ftype="anime",
+                    flags=["i_poster"],
                     when=dt,
                     url=url,
                     image_url=_image_url(an),
@@ -207,6 +297,7 @@ def _deleted_manga() -> Iterator[FeedItem]:
             yield FeedItem(
                 id=f"manga_chapter_{mn.id}_{hist.number}_{int(hist.at.timestamp())}",
                 ftype="manga_chapter",
+                flags=["i_poster"],
                 when=hist.at,
                 url=url,
                 collection=str(mn.id),
@@ -222,6 +313,7 @@ def _deleted_manga() -> Iterator[FeedItem]:
                 yield FeedItem(
                     id=f"manga_entry_{mn.id}",
                     ftype="manga",
+                    flags=["i_poster"],
                     when=dt,
                     url=url,
                     image_url=_image_url(mn),
