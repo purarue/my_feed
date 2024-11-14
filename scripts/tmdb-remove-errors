@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+
+import json
+
+import shutil
+import click
+from my_feed.sources.trakt.tmdb import tmdb_urlcache
+
+
+@click.option("--rm", is_flag=True, default=False)
+@click.command()
+def main(rm: bool) -> None:
+    sc = tmdb_urlcache().summary_cache
+    for f in sc.data_dir.rglob("*/metadata.json"):
+        data = json.loads(f.read_text())
+        if "success" in data:
+            status = data["success"]
+            assert isinstance(status, bool)
+            assert "status_code" in data, str(data)
+            assert data["status_code"] == 34, str(data)
+            assert "status_message" in data
+            assert (
+                data["status_message"]
+                == "The resource you requested could not be found."
+            ), str(data)
+            print(f)
+            if rm:
+                loc = f.absolute()
+                par = loc.parent
+                del loc
+                del f
+                # something like 000, 001
+                assert par.name.isnumeric()
+                assert str(sc.data_dir) in str(par)
+                shutil.rmtree(par)
+                print(f"Removing: {par}")
+
+
+if __name__ == "__main__":
+    main()

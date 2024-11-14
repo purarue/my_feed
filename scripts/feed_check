@@ -74,14 +74,12 @@ def check_mpv(**kwargs: str) -> str | None:
     from my.mpv.history_daemon import inputs
     from my_feed.sources.mpv import history
 
-    def _inputs() -> List[Path]:
-        # ignore merged files
-        return [f for f in reversed(inputs()) if "merged" not in f.name]
+    inputs = [f for f in reversed(inputs()) if "merged" not in f.name]
 
-    if len(_inputs()) == 0:
+    if len(inputs) == 0:
         return
 
-    last = more_itertools.first(history(from_paths=_inputs), default=None)
+    last = more_itertools.first(history(from_paths=inputs), default=None)
     if last is None:
         return
 

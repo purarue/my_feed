@@ -74,9 +74,12 @@ def main(strategy: Strategy) -> None:
             write_to_file()
             continue
 
-        chosen = _search_trakt()
+        prompt = ""
+        if click.confirm(f"Use {titles[0]}?", default=True):
+            prompt = titles[0]
+        chosen = _search_trakt(default_media_type="show", prompt_str=prompt)
         if isinstance(chosen, MovieId):
-            continue
+            raise ValueError("did not expect movie")
         elif isinstance(chosen, TVShowId):
             tv: TVShow = chosen.trakt()
             seasons: typing.List[TVSeason] = [
@@ -87,15 +90,17 @@ def main(strategy: Strategy) -> None:
 
             # if this happens to match, then we're all good
             if total_episodes == anime.XMLData.episodes:
+                click.secho(f"Number of episodes match: {total_episodes}", fg="green")
                 ids = tv.ids["ids"]
-                trk_id = ids["trakt"]
-                assert isinstance(trk_id, int), f"trk_id: {trk_id} {ids}"
+                trakt_id = ids["trakt"]
                 tmdb_id = ids["tmdb"]
+                assert isinstance(trakt_id, int), f"trk_id: {trakt_id} {ids}"
                 assert isinstance(tmdb_id, int), f"tmdb_id: {tmdb_id} {ids}"
                 TMDB_MAPPING[str(anime.id)] = TMDBInfo(
-                    trakt_id=trk_id,
+                    trakt_id=trakt_id,
                     tmdb_id=tmdb_id,
                     media_type="tv",
+                    title=anime.XMLData.title,
                     # this means start at season 1 and just offset the IDs normally
                     season=None,
                     episode_offset=None,
@@ -105,6 +110,8 @@ def main(strategy: Strategy) -> None:
                     ],
                 )
                 write_to_file()
+                click.echo(f"https://trakt.tv/shows/{trakt_id}")
+                click.echo(f"https://themoviedb.org/tv/{tmdb_id}")
             else:
                 click.secho(
                     f"Could not match trakt {total_episodes} to MAL {anime.XMLData.episodes}",
@@ -114,7 +121,7 @@ def main(strategy: Strategy) -> None:
                 click.echo(
                     f"https://trakt.tv/shows/{tv.ids['ids'].get('trakt_slug') or tv.ids['ids'].get('trakt')}"
                 )
-                for i, ssn in enumerate(seasons, 1):
+                for i, ssn in enumerate(seasons):
                     color = (
                         "green" if len(ssn.episodes) == anime.XMLData.episodes else None
                     )
@@ -122,46 +129,54 @@ def main(strategy: Strategy) -> None:
                         f"  {i}. MAL {anime.XMLData.episodes} | Trakt Season {ssn.season} {len(ssn.episodes)}",
                         fg=color,
                     )
-                resp = click.prompt("Pick season, O to offset, or U to ignore").lower()
+                resp = click.prompt("Pick season, or U to ignore").lower()
                 if resp == "u":
                     TMDB_MAPPING[str(anime.id)] = None
                     write_to_file()
                 elif resp.isnumeric():
-                    chosen = seasons[int(resp) - 1]
+                    chosen = seasons[int(resp)]
                     chosen_season = chosen.season
                     confirmed = len(chosen.episodes) == anime.XMLData.episodes
+                    offset: int | None = None
                     if not confirmed:
                         click.secho(
                             f"Could not match {len(chosen.episodes)} to {anime.XMLData.episodes}",
                             fg="red",
                         )
-                        if click.confirm("Set anyways?", default=True):
+                        if click.confirm("Set anyways?", default=False):
                             confirmed = True
-                    if confirmed:
-                        trakt_id = chosen.ids["ids"].get("trakt")
-                        tmdb_id = chosen.ids["ids"].get("tmdb")
-                        assert isinstance(
-                            trakt_id, int
-                        ), f"trk_id: {trakt_id} {chosen.ids}"
-                        assert isinstance(
-                            tmdb_id, int
-                        ), f"tmdb_id: {tmdb_id} {chosen.ids}"
+                        else:
+                            offset = int(
+                                click.prompt(
+                                    "How many episodes to offset by: ", type=int
+                                )
+                            )
+                            assert offset < len(
+                                chosen.episodes
+                            ), f"offset {offset} > {len(chosen.episodes)}"
+                    if confirmed or offset is not None:
+                        ids = tv.ids["ids"]
+                        trakt_id = ids["trakt"]
+                        tmdb_id = ids["tmdb"]
+                        assert isinstance(trakt_id, int), f"trk_id: {trakt_id} {ids}"
+                        assert isinstance(tmdb_id, int), f"tmdb_id: {tmdb_id} {ids}"
                         TMDB_MAPPING[str(anime.id)] = TMDBInfo(
                             trakt_id=trakt_id,
                             tmdb_id=tmdb_id,
                             media_type="tv",
+                            title=anime.XMLData.title,
                             season=chosen_season,
-                            episode_offset=None,
+                            episode_offset=offset,
                             season_info=[
                                 SeasonInfo(num=s.season, ep_count=len(s.episodes))
                                 for s in seasons
                             ],
                         )
+                        click.echo(f"https://trakt.tv/shows/{trakt_id}")
+                        click.echo(f"https://themoviedb.org/tv/{tmdb_id}")
                         write_to_file()
                     else:
                         raise ValueError("TODO: offset here maybe? fail?")
-                elif resp == "o":
-                    raise ValueError("TODO: implement episode offset")
                 else:
                     raise ValueError("Invalid input {}")
         else:

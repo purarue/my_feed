@@ -44,6 +44,7 @@ class SeasonInfo(typing.TypedDict):
 class TMDBInfo(typing.TypedDict):
     trakt_id: int
     tmdb_id: int
+    title: str
     media_type: typing.Literal["movie", "tv"]
     season: int | None
     episode_offset: int | None
@@ -95,19 +96,25 @@ def _anime_episode_url(
                     trakt_episodes.append((ssn["num"], ep))
             # this may not always be true if there is an offset, need to account for that
             assert len(trakt_episodes) == sum(s["ep_count"] for s in seasons)
-            index = episode + offset
-            season_episode = trakt_episodes[index - 1]
-            img, _ = _destructure_img_result(
-                fetch_image_by_params(
-                    tv_id=tvdata["tmdb_id"],
-                    season=season_episode[0],
-                    episode=season_episode[1],
-                    width=400,
+            try:
+                season_episode = trakt_episodes[episode + offset - 1]
+            except IndexError:
+                logger.warning(
+                    f"Failed to index episode {episode} offset {offset} in trakt episodes data {len(trakt_episodes)}"
                 )
-            )
-            # if no image from tmdb, then just default to MAL
-            if img is not None:
-                return img, ["i_still"]
+                return _image_url(data), ["i_poster"]
+            else:
+                img, _ = _destructure_img_result(
+                    fetch_image_by_params(
+                        tv_id=tvdata["tmdb_id"],
+                        season=season_episode[0],
+                        episode=season_episode[1],
+                        width=400,
+                    )
+                )
+                # if no image from tmdb, then just default to MAL
+                if img is not None:
+                    return img, ["i_still"]
     return _image_url(data), ["i_poster"]
 
 

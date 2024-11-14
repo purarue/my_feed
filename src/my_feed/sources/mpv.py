@@ -13,12 +13,13 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from functools import cache
 from math import isclose
-from typing import Iterator, Tuple, Optional, Dict, TypeGuard
+from typing import Iterator, Tuple, Optional, Dict, TypeGuard, List
 
 from mutagen.mp3 import MP3, MutagenError  # type: ignore[import]
 from mutagen.easyid3 import EasyID3  # type: ignore[import]
 from my.mpv.history_daemon import history as mpv_history, Media
 from mpv_history_daemon.utils import music_parse_metadata_from_blob, MediaAllowed
+from mpv_history_daemon.events import all_history as M_all_history
 
 from .model import FeedItem
 from ..log import logger
@@ -264,10 +265,18 @@ matcher = MediaAllowed(
 )
 
 
-def history() -> Iterator[FeedItem]:
+def history(from_paths: Optional[List[Path]] = None) -> Iterator[FeedItem]:
     allow_before = (datetime.now() - timedelta(minutes=5)).timestamp()
 
-    for media in mpv_history():
+    gen: Iterator[Media]
+    if from_paths is not None:
+        from my.mpv.history_daemon import _filter_by
+
+        gen = filter(_filter_by, M_all_history(from_paths))
+    else:
+        gen = mpv_history()
+
+    for media in gen:
         if not matcher.is_allowed(media):
             logger.debug(f"Skipping, not allowed: {media}")
             continue

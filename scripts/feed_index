@@ -53,8 +53,8 @@ else
 	# https://github.com/purarue/malexport/#recover_deleted
 	python3 -m malexport recover-deleted approved-update
 	export RUNELITE_PHOTOS_PREFIX='https://purarue.xyz/p/' # set prefix for indexer
-	vps_sync_osrs_images || exit $?
-	REMSYNC_PUBLIC=1 remsync
+	vps_sync_osrs_images || true
+	REMSYNC_PUBLIC=1 remsync || true
 fi
 
 # write count to file
