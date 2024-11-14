@@ -30,17 +30,30 @@ def _iter_anime_info() -> typing.Iterator[mal.AnimeData]:
             yield an
 
 
+Strategy = typing.Literal["most_watched", "recent"]
+
+
 # TODO: add other strategies
-def _pick_next_mal_item() -> typing.Iterator[mal.AnimeData]:
+def _pick_next_mal_item(
+    strategy: Strategy = "most_watched",
+) -> typing.Iterator[mal.AnimeData]:
     items = list(_iter_anime_info())
-    items.sort(key=lambda x: len(x.history), reverse=True)
+    if strategy == "recent":
+        items.sort(key=lambda x: x.history[-1].at, reverse=True)
+    else:
+        items.sort(key=lambda x: len(x.history), reverse=True)
     yield from items
 
 
 @click.command()
-def main() -> None:
-    for anime in _pick_next_mal_item():
+@click.option(
+    "--strategy", type=click.Choice(["most_watched", "recent"]), default="recent"
+)
+def main(strategy: Strategy) -> None:
+    for anime in _pick_next_mal_item(strategy=strategy):
         if str(anime.id) in TMDB_MAPPING:
+            continue
+        if anime.XMLData.media_type == "Movie":
             continue
         titles = []
         if anime.APIList:
