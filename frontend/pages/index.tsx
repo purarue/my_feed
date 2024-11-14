@@ -280,10 +280,6 @@ const Page: NextPage<IndexProps> = ({ prefs }: IndexProps) => {
     <>
       <Head>
         <title>feed</title>
-        {/* https://github.com/purarue/back-arrow-script/*/}
-        <meta property="ba:title" content="back home" />
-        <meta property="ba:url" content="https://purarue.xyz" />
-        <meta property="ba:color" content="#45a29e" />
         <meta name="description" content="my personal media feed" />
         <link rel="icon" href="https://purarue.xyz/favicon.ico" />
       </Head>
@@ -440,10 +436,6 @@ const Page: NextPage<IndexProps> = ({ prefs }: IndexProps) => {
           )}
         </div>
       </main>
-      <Script
-        src="https://purarue.xyz/p/back-arrow-bundle.js"
-        strategy="beforeInteractive"
-      ></Script>
     </>
   )
 }
