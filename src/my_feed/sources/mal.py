@@ -77,18 +77,18 @@ def _anime_episode_url(
         return _image_url(data), ["i_poster"]
     if str(data.id) in EPISODE_MAPPING:
         assert episode >= 1
-        tvdata = EPISODE_MAPPING[str(data.id)]
-        if (
-            tvdata is not None
-            and tvdata["media_type"] == "tv"
-            and tvdata["season_info"]
-        ):
+        tmdb_data = EPISODE_MAPPING[str(data.id)]
+        if tmdb_data is None:
+            pass
+        elif tmdb_data["media_type"] == "tv" and tmdb_data["season_info"]:
             # offset the MAL episode number to the correct TMDB season/episode
-            season = tvdata["season"] if tvdata["season"] is not None else 1
+            season = tmdb_data["season"] if tmdb_data["season"] is not None else 1
             offset = (
-                tvdata["episode_offset"] if tvdata["episode_offset"] is not None else 0
+                tmdb_data["episode_offset"]
+                if tmdb_data["episode_offset"] is not None
+                else 0
             )
-            season_info = tvdata["season_info"]
+            season_info = tmdb_data["season_info"]
             seasons = [s for s in season_info if s["num"] >= season]
             trakt_episodes: typing.List[typing.Tuple[int, int]] = []
             for ssn in seasons:
@@ -106,15 +106,20 @@ def _anime_episode_url(
             else:
                 img, _ = _destructure_img_result(
                     fetch_image_by_params(
-                        tv_id=tvdata["tmdb_id"],
+                        tv_id=tmdb_data["tmdb_id"],
                         season=season_episode[0],
                         episode=season_episode[1],
-                        width=400,
                     )
                 )
                 # if no image from tmdb, then just default to MAL
                 if img is not None:
                     return img, ["i_still"]
+        elif tmdb_data["media_type"] == "movie":
+            img, flags = _destructure_img_result(
+                fetch_image_by_params(movie_id=tmdb_data["tmdb_id"])
+            )
+            if img is not None:
+                return img, flags
     return _image_url(data), ["i_poster"]
 
 
