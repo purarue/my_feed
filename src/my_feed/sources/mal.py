@@ -99,6 +99,7 @@ def _anime_episode_url(
             try:
                 season_episode = trakt_episodes[episode + offset - 1]
             except IndexError:
+                # this typically meant there was a mismatch between MAL and TMDB on specials/something else
                 logger.warning(
                     f"Failed to index episode {episode} offset {offset} in trakt episodes data {len(trakt_episodes)}"
                 )
