@@ -38,7 +38,7 @@ def _iter_anime_info(above_episodes: int = 0) -> typing.Iterator[mal.AnimeData]:
         if len(an.history) == 0:
             continue
         if above_episodes > 0:
-            if an.XMLData.episodes > above_episodes:
+            if an.XMLData.episodes >= above_episodes:
                 yield an
         else:
             yield an
@@ -79,16 +79,19 @@ def _pick_next_mal_item(
     yield from items
 
 
-@click.command()
+@click.command(help=__doc__)
 @click.option(
     "--strategy",
     type=click.Choice(typing.get_args(Strategy)),
     default=typing.get_args(Strategy)[1],
+    help="How to pick next item to pick",
+    show_default=True,
 )
 @click.option(
     "--above-episodes",
     type=int,
     default=0,
+    help="Only prompt anime with this number of episodes or more",
 )
 def main(strategy: Strategy, above_episodes: int) -> None:
     for anime in _pick_next_mal_item(strategy=strategy, above_episodes=above_episodes):
@@ -110,6 +113,11 @@ def main(strategy: Strategy, above_episodes: int) -> None:
         termsize = os.get_terminal_size()
         click.echo("=" * (termsize.columns))
         click.echo(f"https://myanimelist.net/anime/{anime.id}")
+        click.echo(f"Episodes: {anime.XMLData.episodes}", nl=False)
+        if anime.APIList and anime.APIList.season:
+            click.echo(f" Season: {anime.APIList.season.year}")
+        else:
+            click.echo()
         for title in titles:
             click.secho(f"  {title}", fg="blue")
 
