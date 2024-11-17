@@ -171,6 +171,9 @@ def _anime() -> Iterator[FeedItem]:
         url = f"https://myanimelist.net/anime/{an.id}"
         score = float(an.XMLData.score) if an.XMLData.score is not None else None
 
+        img: str | None = None
+        flags: list[str] = []
+
         for hist in an.history:
             img, flags = _anime_episode_url(an, hist.number)
             yield FeedItem(
@@ -188,13 +191,19 @@ def _anime() -> Iterator[FeedItem]:
             )
         if an.XMLData.status.casefold() == "completed":
             if dt := _completed_datetime(an):
+                # if we have an image from tmdb and this
+                # is a movie/special, use that instead
+                if an.XMLData.episodes == 1 and img is not None:
+                    use_img, use_flags = img, flags
+                else:
+                    use_img, use_flags = _image_url(an), ["i_poster"]
                 yield FeedItem(
                     id=f"anime_entry_{an.id}",
                     ftype="anime",
-                    flags=["i_poster"],
+                    flags=use_flags,
                     when=dt,
                     url=url,
-                    image_url=_image_url(an),
+                    image_url=use_img,
                     title=an.APIList.title,
                     release_date=an.APIList.start_date,
                     score=score,

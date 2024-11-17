@@ -60,7 +60,7 @@ def _pick_next_mal_item(
     elif strategy == "oldest":
         items.sort(key=lambda x: x.history[0].at)
     elif strategy == "most_watched":
-        items.sort(key=lambda x: len(x.history), reverse=True)
+        items.sort(key=lambda x: x.watched_seconds, reverse=True)
     elif strategy == "mean":
         items.sort(
             key=lambda x: (
@@ -121,7 +121,14 @@ def main(strategy: Strategy, above_episodes: int) -> None:
         for title in titles:
             click.secho(f"  {title}", fg="blue")
 
-        if click.confirm("Ignore?", default=False):
+        for item in titles:
+            assert isinstance(item, str), f"{item} {type(item)} not a string"
+
+        ignore_default = anime.XMLData.media_type.casefold() == "special" or any(
+            "ova" in item.casefold().split() for item in titles
+        )
+
+        if click.confirm("Ignore?", default=ignore_default):
             TMDB_MAPPING[str(anime.id)] = None
             write_to_file()
             continue
@@ -226,9 +233,7 @@ def main(strategy: Strategy, above_episodes: int) -> None:
                             confirmed = True
                         else:
                             offset = int(
-                                click.prompt(
-                                    "How many episodes to offset by: ", type=int
-                                )
+                                click.prompt("How many episodes to offset by", type=int)
                             )
                             assert offset < len(
                                 chosen.episodes
