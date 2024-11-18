@@ -3,6 +3,7 @@
 import subprocess
 import shlex
 import itertools
+import logging
 from functools import cache
 from pathlib import Path
 from typing import List, Any, Dict, Iterator
@@ -11,8 +12,10 @@ from datetime import date
 
 import click
 import requests
-from logzero import logger
 import more_itertools
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("feed_check")
 
 
 @cache
