@@ -38,7 +38,7 @@ def _iter_anime_info(above_episodes: int = 0) -> typing.Iterator[mal.AnimeData]:
         if len(an.history) == 0:
             continue
         if above_episodes > 0:
-            if an.XMLData.episodes >= above_episodes:
+            if len(an.history) >= above_episodes:
                 yield an
         else:
             yield an
@@ -49,7 +49,6 @@ Strategy = typing.Literal[
 ]
 
 
-# TODO: add other strategies
 def _pick_next_mal_item(
     strategy: Strategy = "most_watched",
     above_episodes: int = 0,
