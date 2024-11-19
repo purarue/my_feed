@@ -100,7 +100,7 @@ def main(strategy: Strategy, above_episodes: int, dry_run: bool) -> None:
     for anime in _pick_next_mal_item(strategy=strategy, above_episodes=above_episodes):
         if str(anime.id) in TMDB_MAPPING:
             continue
-        if anime.XMLData.media_type == "Movie":
+        if anime.XMLData.media_type.casefold() in ["movie", "music"]:
             continue
         if dry_run:
             click.echo(f"{anime.id} {anime.XMLData.title}")

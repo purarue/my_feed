@@ -68,7 +68,7 @@ EPISODE_MAPPING: TMDBMapping = load_mal_tmdb_mapping()
 TMDB_CACHE = tmdb_urlcache()
 
 
-def _anime_episode_url(
+def _anime_episode_image_url(
     data: mal.AnimeData, episode: int
 ) -> typing.Tuple[Optional[str], typing.List[str]]:
     from .trakt import fetch_image_by_params, _destructure_img_result
@@ -175,7 +175,7 @@ def _anime() -> Iterator[FeedItem]:
         flags: list[str] = []
 
         for hist in an.history:
-            img, flags = _anime_episode_url(an, hist.number)
+            img, flags = _anime_episode_image_url(an, hist.number)
             yield FeedItem(
                 id=f"anime_episode_{an.id}_{hist.number}_{int(hist.at.timestamp())}",
                 ftype="anime_episode",
