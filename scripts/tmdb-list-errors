@@ -7,7 +7,9 @@ import click
 from my_feed.sources.trakt.tmdb import tmdb_urlcache
 
 
-@click.option("--rm", is_flag=True, default=False)
+@click.option(
+    "--rm", is_flag=True, default=False, help="remove any directories that have errors"
+)
 @click.command()
 def main(rm: bool) -> None:
     sc = tmdb_urlcache().summary_cache
