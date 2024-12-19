@@ -29,8 +29,8 @@ from .common import click, FeedBackgroundError
 def _path_keys(p: Path | str) -> Iterator[Tuple[str, ...]]:
     pp = Path(p)
 
-    *_rest, artist, album, song_full = pp.parts
-    song, ext = os.path.splitext(song_full)
+    *_, artist, album, song_full = pp.parts
+    song, _ = os.path.splitext(song_full)
 
     yield tuple([artist, album, song])
     yield tuple([album, song])
@@ -278,6 +278,8 @@ def history(from_paths: Optional[List[Path]] = None) -> Iterator[FeedItem]:
         gen = mpv_history()
 
     for media in gen:
+        if media.path.endswith(".part"):
+            media = media._replace(path=media.path[:-5])
         if not matcher.is_allowed(media):
             logger.debug(f"Skipping, not allowed: {media}")
             continue
