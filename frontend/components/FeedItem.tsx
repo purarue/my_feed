@@ -44,10 +44,8 @@ export const FeedGrid: React.FC<FeedGridProps> = ({ data }: FeedGridProps) => {
     <div className={styles.grid}>
       {data.map((feedItem: FeedItemStruct) => {
         return (
-          <div key={feedItem.id}>
-            <div className={styles.card}>
-              <FeedBody item={feedItem} />
-            </div>
+          <div key={feedItem.id} data-id={feedItem.id} className={styles.card}>
+            <FeedBody item={feedItem} />
           </div>
         )
       })}
