@@ -12,7 +12,7 @@ import typing
 import json
 from pathlib import Path
 
-from trakt_watch.__main__ import _search_trakt, MovieId, TVShowId
+from trakt_watch.core import search_trakt, MovieId, TVShowId
 from trakt.tv import TVShow, TVSeason
 import my.mal.export as mal
 from my_feed.sources.mal import TMDBInfo, load_mal_tmdb_mapping, TMDBMapping, SeasonInfo
@@ -142,7 +142,7 @@ def main(strategy: Strategy, above_episodes: int, dry_run: bool) -> None:
         prompt = ""
         if click.confirm(f"Use {titles[0]}?", default=True):
             prompt = titles[0]
-        chosen = _search_trakt(
+        chosen = search_trakt(
             default_media_type="show" if anime.XMLData.episodes > 1 else None,
             prompt_str=prompt,
         )

@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+
+"""
+script that lets me save thoughts for movies/episodes
+
+in the future will likely inject these into the frontend
+"""
+
+from pathlib import Path
+from datetime import datetime
+from typing import NamedTuple, Any
+from urllib.parse import urlsplit
+
+from autotui.shortcuts import load_prompt_and_writeback
+import click
+from my.utils.backup_to.__main__ import get_dir
+
+
+FEED_DIR = get_dir("my_feed")
+
+
+def _click_edit_not_null() -> str:
+    val = click.edit()
+    if val is None:
+        raise ValueError("nothing was entered")
+    return val.strip()
+
+
+class Thoughts(NamedTuple):
+    url: str
+    text: str
+    dt: datetime
+
+    @staticmethod
+    def attr_validators() -> dict[str, Any]:
+        return {"text": _click_edit_not_null}
+
+
+@click.command()
+@click.option("-u", "--url", required=True, help="unique URL key for these thoughts")
+def main(url: str) -> None:
+    parts = urlsplit(url)
+
+    file = Path(FEED_DIR / f"{parts.netloc}.json")
+    added = load_prompt_and_writeback(Thoughts, file, attr_use_values={"url": url})
+    click.echo(added[-1])
+
+
+if __name__ == "__main__":
+    main()
