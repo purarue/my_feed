@@ -78,6 +78,9 @@ def _pick_next_mal_item(
     yield from items
 
 
+SPECIALS = ["ova", "cms", "cm", "ona", "pv", "pvs"]
+
+
 @click.command(help=__doc__)
 @click.option(
     "--strategy",
@@ -130,9 +133,13 @@ def main(strategy: Strategy, above_episodes: int, dry_run: bool) -> None:
         for item in titles:
             assert isinstance(item, str), f"{item} {type(item)} not a string"
 
-        ignore_default = anime.XMLData.media_type.casefold() == "special" or any(
-            "ova" in item.casefold().split() for item in titles
-        )
+        ignore_default = False
+        if anime.XMLData.media_type.casefold() == "special":
+            ignore_default = True
+        elif any(
+            any([k in item.casefold().split() for k in SPECIALS]) for item in titles
+        ):
+            ignore_default = True
 
         if click.confirm("Ignore?", default=ignore_default):
             TMDB_MAPPING[str(anime.id)] = None
@@ -144,7 +151,7 @@ def main(strategy: Strategy, above_episodes: int, dry_run: bool) -> None:
             prompt = titles[0]
         chosen = search_trakt(
             default_media_type="show" if anime.XMLData.episodes > 1 else None,
-            prompt_str=prompt,
+            search_query=prompt,
         )
         if isinstance(chosen, MovieId):
             confirmed = anime.XMLData.episodes == 1
