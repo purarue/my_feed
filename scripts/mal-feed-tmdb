@@ -100,7 +100,9 @@ SPECIALS = ["ova", "cms", "cm", "ona", "pv", "pvs"]
     is_flag=True,
 )
 def main(strategy: Strategy, above_episodes: int, dry_run: bool) -> None:
-    for anime in _pick_next_mal_item(strategy=strategy, above_episodes=above_episodes):
+    items = list(_pick_next_mal_item(strategy=strategy, above_episodes=above_episodes))
+    filtered = []
+    for anime in items:
         if str(anime.id) in TMDB_MAPPING:
             continue
         if anime.XMLData.media_type.casefold() in ["movie", "music"]:
@@ -108,6 +110,10 @@ def main(strategy: Strategy, above_episodes: int, dry_run: bool) -> None:
         if dry_run:
             click.echo(f"{anime.id} {anime.XMLData.title}")
             continue
+        filtered.append(anime)
+
+    for i, anime in enumerate(filtered):
+        click.secho(f"{len(filtered) - i} items left", fg=(255, 165, 0))
         titles = []
         if anime.APIList:
             titles.append(anime.APIList.title)
