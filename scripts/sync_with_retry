@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-# run 'scp' until it succeeds,
-# trying 10 times before giving up
-# sleep 1 between tries
-
 # if i dont have internet, quit
 if ! wait-for-internet -q --timeout "${WFI_TIMEOUT:-10}"; then
 	echo 'No internet!' >&2
@@ -12,29 +8,6 @@ fi
 THIS_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 cd "${THIS_DIR}/.." || exit $?
 
-declare ARGS
-ARGS=("$@")
-
-run_sync() {
-	printf "Running scp '%s'\n" "${ARGS[*]}" >&2
-	scp "${ARGS[@]}" || return $?
-}
-
-rs() {
-	local count="${1:-1}"
-	printf 'Try %s\n' "$count"
-	if ((count > 10)); then
-		return 2
-	fi
-	if ((count > 1)); then
-		echo "Waiting..." >&2
-		sleep 1
-	fi
-	if run_sync; then
-		return 0
-	else
-		rs "$((count + 1))" || return $?
-	fi
-}
-
-rs || exit $?
+printf "Running scp '%s'\n" "$*" >&2
+# use https://github.com/kadwanev/retry
+exec retry -- scp "$@"
