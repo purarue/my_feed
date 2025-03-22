@@ -6,5 +6,4 @@ set -o pipefail
 THIS_DIR="$(realpath "$(dirname "${BASH_SOURCE[0]}")")"
 cd "${THIS_DIR}" || return $?
 
-# exec yarn
-exec yarn "$@"
+exec npm run "${1:-start}"

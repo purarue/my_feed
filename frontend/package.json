@@ -2,7 +2,7 @@
   "name": "feed",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 4500",
+    "dev": "next dev --turbopack -p 4500",
     "build": "next build",
     "start": "next start -p 4500",
     "lint": "next lint"
@@ -12,10 +12,10 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.1",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "dayjs": "^1.11.13",
-    "next": "15.1.7",
-    "react": "^18.3.1",
+    "next": "15.2.3",
+    "react": "18.3.1",
     "react-debounce-input": "^3.3.0",
-    "react-dom": "^18.3.1",
+    "react-dom": "18.3.1",
     "react-select": "^5.10.0",
     "swr": "^2.3.2"
   },
@@ -23,14 +23,18 @@
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.20.0",
     "@types/node": "^22.13.4",
-    "@types/react": "^18.3.1",
-    "@types/react-dom": "^18.3.1",
+    "@types/react": "19.0.12",
+    "@types/react-dom": "19.0.4",
     "eslint": "^9.20.1",
-    "eslint-config-next": "^15.1.7",
+    "eslint-config-next": "15.2.3",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-simple-import-sort": "^12.1.1",
     "prettier": "^3.5.1",
     "typescript": "5.7.3"
+  },
+  "resolutions": {
+    "@types/react": "19.0.12",
+    "@types/react-dom": "19.0.4"
   }
 }
