@@ -47,7 +47,7 @@ if [[ -z "$FEED_REINDEX" ]]; then
 	INDEX_ARGS+=("-E" "${TMPDIR}/ids.json")
 	# stuff to ignore here which takes a long time and/or doesn't commonly change
 	# can be pushed just when doing a re-index
-	export MY_FEED_EXCLUDE_SOURCES='mal.deleted,games.chess,games.grouvee,games.game_center,facebook_spotify_listens,games.osrs'
+	export MY_FEED_EXCLUDE_SOURCES='mal.deleted,games.grouvee,games.game_center,facebook_spotify_listens,games.osrs'
 else
 	# running a re-index, so update the approved IDs for computing deleted anime entry data
 	# https://github.com/purarue/malexport/#recover_deleted
