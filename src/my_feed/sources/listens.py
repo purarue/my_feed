@@ -101,6 +101,15 @@ def history() -> Iterator[FeedItem]:
                     f"Running in the background, cannot prompt for {listen}", exc_info=e
                 )
 
+        # it seems this happens when im listening to internet radio through foobar?
+        # this does break if I listen to an album name that is literally '?', but I'm
+        # okay with that tradeoff
+        if (
+            subtitle == "?"
+            and listen.metadata.get("submission_client") == "Pano Scrobbler"
+        ):
+            subtitle = None
+
         ts: int = int(listen.listened_at.timestamp())
         # TODO: attach to album somehow (parent_id/collection)?
         yield FeedItem(
