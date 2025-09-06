@@ -167,11 +167,14 @@ def index(
         click.echo(f"Excluded {click.style(len(all_items) - len(items), BLUE)} items")
     click.echo(f"Total: {click.style(len(items), BLUE)} items")
     if output is not None:
-        click.echo(f"Writing to '{output}'")
-        with output.open("w") as f:
-            for item in items:
-                f.write(item.to_json())
-                f.write("\n")
+        if len(items) == 0:
+            click.echo("No items to sync!", err=True)
+        else:
+            click.echo(f"Writing to '{output}'", err=True)
+            with output.open("w") as f:
+                for item in items:
+                    f.write(item.to_json())
+                    f.write("\n")
         if write_count_to:
             write_count_to.write_text(str(len(items)))
 
