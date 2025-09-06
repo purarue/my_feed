@@ -1,7 +1,7 @@
 import os
 import string
 import warnings
-from urllib.parse import urljoin, urlsplit, urlunsplit
+from urllib.parse import urlsplit, urlunsplit
 from typing import Iterator, Optional, Dict, Any, cast, Literal
 from datetime import datetime, date
 from functools import cache

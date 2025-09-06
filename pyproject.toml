@@ -45,8 +45,16 @@ files = "setup.py, src/my_feed, backend, tests"
 plugins = "pydantic.mypy"
 
 [tool.pytest.ini_options]
-addopts = ["-ra"]
+addopts = "-ra"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.package-data]
+my_feed = ["py.typed"]
 
 [tool.setuptools.packages.find]
-include = []
-exclude = []
+where = ["src"]
+namespaces = true
+include = ["my_feed"]
+exclude = ["tests", ".github", "backend", "frontend", "scripts"]
