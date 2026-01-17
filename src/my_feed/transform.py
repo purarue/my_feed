@@ -29,7 +29,8 @@ def sources() -> Iterator[Callable[[], Iterator["FeedItem"]]]:
 """
 
 import functools
-from typing import Callable, Optional, List, Iterator
+from typing import Optional
+from collections.abc import Callable, Iterator
 
 from .sources.model import FeedItem
 from .log import logger
@@ -39,7 +40,7 @@ from .log import logger
 # if you don't want to transform the item, yield the item itself
 TransformFunction = Callable[[FeedItem], Optional[FeedItem]]
 
-TRANSFORMS: List[TransformFunction] = []
+TRANSFORMS: list[TransformFunction] = []
 
 try:
     from my.config.feed import TRANSFORMS as MY_TRANSFORMS  # type: ignore[import]
@@ -55,7 +56,7 @@ except ImportError as e:
 
 def transform(
     feed: Callable[[], Iterator[FeedItem]],
-    transforms: List[TransformFunction] = TRANSFORMS,
+    transforms: list[TransformFunction] = TRANSFORMS,
 ) -> Callable[[], Iterator[FeedItem]]:
     """
     Receives a callable source as input, and wraps it, returning a callable
@@ -70,7 +71,7 @@ def transform(
 
 
 def _transform(
-    feed: Iterator[FeedItem], transforms: List[TransformFunction] = TRANSFORMS
+    feed: Iterator[FeedItem], transforms: list[TransformFunction] = TRANSFORMS
 ) -> Iterator[FeedItem]:
     for item in feed:
         # update scope with item

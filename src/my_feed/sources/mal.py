@@ -8,7 +8,7 @@ import typing
 import json
 from pathlib import Path
 from datetime import datetime, timezone
-from typing import Iterator, Optional, Union
+from collections.abc import Iterator
 
 import my.mal.export as mal
 
@@ -16,7 +16,7 @@ from .model import FeedItem
 from ..log import logger
 
 
-def _image_url(data: Union[mal.AnimeData, mal.MangaData]) -> Optional[str]:
+def _image_url(data: mal.AnimeData | mal.MangaData) -> str | None:
     if data.APIList is None:
         # TODO: fetch from dbsentinel?
         # https://dbsentinel.purarue.xyz/
@@ -51,7 +51,7 @@ class TMDBInfo(typing.TypedDict):
     season_info: list[SeasonInfo]
 
 
-TMDBMapping = typing.Dict[str, TMDBInfo | None]
+TMDBMapping = dict[str, TMDBInfo | None]
 
 
 def load_mal_tmdb_mapping() -> TMDBMapping:
@@ -70,7 +70,7 @@ TMDB_CACHE = tmdb_urlcache()
 
 def _anime_episode_image_url(
     data: mal.AnimeData, episode: int
-) -> typing.Tuple[Optional[str], typing.List[str]]:
+) -> tuple[str | None, list[str]]:
     from .trakt import fetch_image_by_params, _destructure_img_result
 
     if TMDB_CACHE is None:
@@ -90,7 +90,7 @@ def _anime_episode_image_url(
             )
             season_info = tmdb_data["season_info"]
             seasons = [s for s in season_info if s["num"] >= season]
-            trakt_episodes: typing.List[typing.Tuple[int, int]] = []
+            trakt_episodes: list[tuple[int, int]] = []
             for ssn in seasons:
                 for ep in range(1, ssn["ep_count"] + 1):
                     trakt_episodes.append((ssn["num"], ep))
@@ -124,9 +124,9 @@ def _anime_episode_image_url(
 
 
 def _completed_datetime(
-    data: Union[mal.AnimeData, mal.MangaData]
-) -> Optional[datetime]:
-    dt: Optional[datetime] = None
+    data: mal.AnimeData | mal.MangaData
+) -> datetime | None:
+    dt: datetime | None = None
     total_count: int
     watched: int
     if isinstance(data, mal.AnimeData):

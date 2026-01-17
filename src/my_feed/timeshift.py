@@ -1,7 +1,6 @@
 import dataclasses
 from datetime import date, timedelta, datetime
 
-from typing import Optional, Set, Tuple
 
 from .sources.model import FeedItem
 from .log import logger
@@ -9,7 +8,7 @@ from .log import logger
 
 class Timeshift:
     def __init__(
-        self, *, for_feeditems: Set[str], timeshift_between: Tuple[date, date]
+        self, *, for_feeditems: set[str], timeshift_between: tuple[date, date]
     ):
         self.for_feeditems = for_feeditems
         self.earliest_start_year = date(1940, 1, 1)
@@ -25,7 +24,7 @@ class Timeshift:
             and feeditem.when.date() < self.account_created
         )
 
-    def _determine_timeshift(self, feeditem: FeedItem) -> Optional[date]:
+    def _determine_timeshift(self, feeditem: FeedItem) -> date | None:
         # shift items before the account creation date to somewhere between the media start and end date
         # leave items after the account creation date alone
 
@@ -59,7 +58,7 @@ class Timeshift:
         else:
             return None
 
-    def timeshift(self, feeditem: FeedItem) -> Optional[FeedItem]:
+    def timeshift(self, feeditem: FeedItem) -> FeedItem | None:
         if new_date := self._determine_timeshift(feeditem):
             logger.debug(
                 f"timeshift {feeditem.ftype} {feeditem.title} from {feeditem.when.date()} to {new_date}"

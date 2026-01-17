@@ -6,7 +6,7 @@ to get feed data for movies and TV episodes
 Use TMDB to fetch image and release date information for feed items
 """
 
-from typing import Iterator, Dict, Optional, Union, List, Tuple
+from collections.abc import Iterator
 from datetime import date, datetime
 
 import traktexport.dal as D
@@ -16,7 +16,7 @@ from .tmdb import fetch_tmdb_data, BASE_URL
 from ..model import FeedItem
 
 
-def _fetch_image(url: str, width: int) -> Optional[Tuple[str, List[str]]]:
+def _fetch_image(url: str, width: int) -> tuple[str, list[str]] | None:
     """
     Request or grab TMDB data for the URL from cache, returning the poster path if it exists
     """
@@ -39,12 +39,12 @@ def _fetch_image(url: str, width: int) -> Optional[Tuple[str, List[str]]]:
 
 def fetch_image_by_params(
     *,
-    movie_id: Optional[int] = None,
-    tv_id: Optional[int] = None,
-    season: Optional[int] = None,
-    episode: Optional[int] = None,
+    movie_id: int | None = None,
+    tv_id: int | None = None,
+    season: int | None = None,
+    episode: int | None = None,
     width: int = 400,
-) -> Optional[Tuple[str, List[str]]]:
+) -> tuple[str, list[str]] | None:
     """
     - Movie image if movie_id is provided
     - Episode image if tv_id, season, and episode are provided
@@ -72,8 +72,8 @@ def fetch_image_by_params(
 
 
 def get_image(
-    media_data: Union[D.Movie, D.Episode, D.Show], *, width: int = 400
-) -> Optional[Tuple[str, List[str]]]:
+    media_data: D.Movie | D.Episode | D.Show, *, width: int = 400
+) -> tuple[str, list[str]] | None:
     """
     Wrapper function to maintain compatibility with the old get_image signature.
     Extracts necessary parameters from media_data and calls fetch_image_by_params.
@@ -93,7 +93,7 @@ def get_image(
         return fetch_image_by_params(tv_id=tv_id, width=width)
 
 
-def get_release_date(media_data: Union[D.Movie, D.Episode, D.Show]) -> Optional[date]:
+def get_release_date(media_data: D.Movie | D.Episode | D.Show) -> date | None:
     """
     Get the release date of the movie/episode
     """
@@ -120,7 +120,7 @@ def get_release_date(media_data: Union[D.Movie, D.Episode, D.Show]) -> Optional[
     return None
 
 
-def _get_genres(media_data: Union[D.Movie, D.Episode, D.Show]) -> List[str]:
+def _get_genres(media_data: D.Movie | D.Episode | D.Show) -> list[str]:
     """
     Get genres for the movie/show
     """
@@ -143,8 +143,8 @@ def _get_genres(media_data: Union[D.Movie, D.Episode, D.Show]) -> List[str]:
 
 
 def get_rating(
-    media_data: Union[D.Movie, D.Episode, D.Show], *, rating_map: Dict[str, D.Rating]
-) -> Optional[float]:
+    media_data: D.Movie | D.Episode | D.Show, *, rating_map: dict[str, D.Rating]
+) -> float | None:
     """
     get rating for movie/episode. If that doesn't exist,
     use the rating for the show, then the season, if those exists
@@ -163,8 +163,8 @@ def get_rating(
 
 
 # create mapping from most recent time I watched a movie/episode url (movie/show URL) -> datetime
-def _history_mapping(hst: List[D.HistoryEntry]) -> Dict[str, datetime]:
-    hst_mapping: Dict[str, datetime] = {}
+def _history_mapping(hst: list[D.HistoryEntry]) -> dict[str, datetime]:
+    hst_mapping: dict[str, datetime] = {}
 
     for h in hst:
         if h.action != "watch":
@@ -182,8 +182,8 @@ def _history_mapping(hst: List[D.HistoryEntry]) -> Dict[str, datetime]:
 
 
 def _destructure_img_result(
-    res: Optional[Tuple[str, List[str]]]
-) -> Tuple[Optional[str], List[str]]:
+    res: tuple[str, list[str]] | None
+) -> tuple[str | None, list[str]]:
     match res:
         case None:
             return None, []
@@ -199,10 +199,10 @@ def history() -> Iterator[FeedItem]:
     hst = list(trakt_history())
 
     # url to datetime mapping
-    hst_mapping: Dict[str, datetime] = _history_mapping(hst)
+    hst_mapping: dict[str, datetime] = _history_mapping(hst)
 
     # url to rating mapping
-    rm: Dict[str, D.Rating] = {r.media_data.url: r for r in ratings()}
+    rm: dict[str, D.Rating] = {r.media_data.url: r for r in ratings()}
 
     for rt in rm.values():
         m = rt.media_data
@@ -247,9 +247,9 @@ def history() -> Iterator[FeedItem]:
 
         # set default (for movie) and episode metadata
         title = m.title
-        part: Optional[int] = None
-        subpart: Optional[int] = None
-        subtitle: Optional[str] = None
+        part: int | None = None
+        subpart: int | None = None
+        subtitle: str | None = None
         collection: str
         if isinstance(m, D.Episode):
             title = m.show.title

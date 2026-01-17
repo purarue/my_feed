@@ -1,6 +1,6 @@
 from __future__ import annotations
 import json
-from typing import Optional, List, Dict, Any
+from typing import Any
 from datetime import datetime, date
 
 from dataclasses import dataclass, field
@@ -13,21 +13,21 @@ class FeedItem:
     title: str  # name of entry, track, episode name, or 'Episode {}'
     ftype: str  # scrobble, episode, movie, book
     when: datetime  # when I finished this
-    creator: Optional[str] = None  # artist, or person who created this
+    creator: str | None = None  # artist, or person who created this
     # any additional data to attach to this
-    data: Dict[str, Any] = field(default_factory=dict)
-    release_date: Optional[date] = None  # when this entry was released
-    part: Optional[int] = None  # e.g. season
-    subpart: Optional[int] = None  # e.g. episode, or track number
+    data: dict[str, Any] = field(default_factory=dict)
+    release_date: date | None = None  # when this entry was released
+    part: int | None = None  # e.g. season
+    subpart: int | None = None  # e.g. episode, or track number
     # if these are episodes/parts, a collection under which to group these
-    collection: Optional[str] = None
+    collection: str | None = None
     # parent_id: Optional[str] = None
-    subtitle: Optional[str] = None  # show name, or album name (for scrobble)
-    url: Optional[str] = None
-    image_url: Optional[str] = None
+    subtitle: str | None = None  # show name, or album name (for scrobble)
+    url: str | None = None
+    image_url: str | None = None
     # e.g. 'blur', for passing flags for displaying client side
-    flags: List[str] = field(default_factory=list)
-    score: Optional[float] = None  # normalized to out of 10
+    flags: list[str] = field(default_factory=list)
+    score: float | None = None  # normalized to out of 10
 
     def check(self) -> None:
         """

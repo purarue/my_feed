@@ -1,7 +1,6 @@
 import os
 import logging
 
-from typing import Optional
 
 from logzero import setup_logger  # type: ignore[import]
 
@@ -13,7 +12,7 @@ logger: logging.Logger
 
 # logzero handles adding handling/modifying levels fine
 # can be imported/configured multiple times
-def setup(level: Optional[int] = None) -> logging.Logger:
+def setup(level: int | None = None) -> logging.Logger:
     chosen_level = level or int(os.environ.get("MY_FEED_LOGS", DEFAULT_LEVEL))
     lgr: logging.Logger = setup_logger(name=__package__, level=chosen_level)
     return lgr

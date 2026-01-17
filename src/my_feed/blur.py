@@ -4,7 +4,7 @@ import fnmatch
 
 from pathlib import Path
 from enum import Enum
-from typing import NamedTuple, Set, TextIO
+from typing import NamedTuple, TextIO
 
 from .sources.model import FeedItem
 
@@ -53,7 +53,7 @@ class Blur(NamedTuple):
 
 
 class Blurred(NamedTuple):
-    items: Set[Blur]
+    items: set[Blur]
 
     @classmethod
     def parse_blob(cls, f: TextIO, /) -> Blurred:

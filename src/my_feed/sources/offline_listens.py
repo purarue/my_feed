@@ -1,4 +1,4 @@
-from typing import Iterator
+from collections.abc import Iterator
 
 from my.offline.listens import history as of_history
 

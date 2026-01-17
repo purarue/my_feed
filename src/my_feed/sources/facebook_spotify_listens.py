@@ -7,7 +7,7 @@ https://github.com/purarue/HPI/blob/master/my/facebook/gdpr.py
 """
 
 import re
-from typing import Iterator
+from collections.abc import Iterator
 
 from my.facebook.gdpr import events, Action
 

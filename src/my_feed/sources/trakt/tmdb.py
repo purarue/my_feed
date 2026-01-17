@@ -7,7 +7,6 @@ import os
 import re
 import warnings
 from functools import cache
-from typing import Optional
 from datetime import datetime
 
 import requests
@@ -76,7 +75,7 @@ def tmdb_urlcache() -> TMDBCache:
     return TMDBCache(cache_dir=tmdb_cache_dir)
 
 
-def fetch_tmdb_data(url: str) -> Optional[Summary]:
+def fetch_tmdb_data(url: str) -> Summary | None:
     """
     Given a TMDB API URL (movie/tv show/season/episode), requests and caches the data locally
     """

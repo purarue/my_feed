@@ -2,7 +2,8 @@ import os
 import string
 import warnings
 from urllib.parse import urlsplit, urlunsplit
-from typing import Iterator, Optional, Dict, Any, cast, Literal
+from typing import Any, cast, Literal
+from collections.abc import Iterator
 from datetime import datetime, date
 from functools import cache
 
@@ -75,7 +76,7 @@ def gb_cache() -> GiantBombCache:
     return GiantBombCache(cache_dir=cache_dir, sleep_time=5)
 
 
-def fetch_giantbomb_data(giantbomb_id: int) -> Optional[Summary]:
+def fetch_giantbomb_data(giantbomb_id: int) -> Summary | None:
     url = f"http://www.giantbomb.com/api/game/{giantbomb_id}/"
     try:
         return gb_cache().get(url)
@@ -84,7 +85,7 @@ def fetch_giantbomb_data(giantbomb_id: int) -> Optional[Summary]:
         return None
 
 
-def _grouvee_img(res: dict[str, Any]) -> Optional[str]:
+def _grouvee_img(res: dict[str, Any]) -> str | None:
     """traverse API resp and grab the thumbnail/medium image"""
     if img := res.get("image"):
         assert isinstance(img, dict)
@@ -99,7 +100,7 @@ def grouvee() -> Iterator[FeedItem]:
 
     for g in played():
         assert g.giantbomb_id is not None
-        gb_data: Optional[Summary] = fetch_giantbomb_data(g.giantbomb_id)
+        gb_data: Summary | None = fetch_giantbomb_data(g.giantbomb_id)
         assert gb_data is not None, f"No summary returned for {g.giantbomb_id}"
 
         # handle error
@@ -110,7 +111,7 @@ def grouvee() -> Iterator[FeedItem]:
         else:
             res = {}
 
-        rel: Optional[date] = g.release_date
+        rel: date | None = g.release_date
 
         # update with more accurate date, if possible
         if rel_str := res.get("original_release_date"):
@@ -153,7 +154,7 @@ def osrs() -> Iterator[FeedItem]:
             continue
         id_: str
         desc: str
-        img: Optional[str] = None
+        img: str | None = None
         dt = localize(sc.dt)
         if "HPIDATA" in os.environ:
             if prefix := os.getenv("RUNELITE_PHOTOS_PREFIX"):
@@ -227,7 +228,7 @@ def chess() -> Iterator[FeedItem]:
         board = pgn.board()
         for move in pgn.mainline_moves():
             board.push(move)
-        data: Dict[str, Any] = {}
+        data: dict[str, Any] = {}
         data["svg"] = str(chess.svg.board(board))
         yield FeedItem(
             id=f"chess_{int(game.end_time.timestamp())}",

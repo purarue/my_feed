@@ -11,7 +11,8 @@ but some older entries have bad metadata
 import os
 import json
 from pathlib import Path
-from typing import Iterator, Tuple, Dict, cast, Optional
+from typing import cast
+from collections.abc import Iterator
 
 from my.listenbrainz.export import history as lb_history, Listen
 
@@ -35,7 +36,7 @@ def _manual_listen_datafile() -> Path:
     return Path(os.path.join(os.environ["HPIDATA"], "feed_listen_fixes.json"))
 
 
-Metadata = Tuple[str, str, str]
+Metadata = tuple[str, str, str]
 
 
 def _manually_fix_listen(ls: Listen) -> Metadata:
@@ -43,9 +44,9 @@ def _manually_fix_listen(ls: Listen) -> Metadata:
 
     # load data
     datafile = _manual_listen_datafile()
-    data: Dict[str, Metadata] = {}
+    data: dict[str, Metadata] = {}
     if datafile.exists():
-        data = cast(Dict[str, Metadata], json.loads(datafile.read_text()))
+        data = cast(dict[str, Metadata], json.loads(datafile.read_text()))
 
     # use timestamp to uniquely identify a single fix
     assert ls.listened_at is not None
@@ -78,7 +79,7 @@ def history() -> Iterator[FeedItem]:
             continue
 
         title: str = listen.track_name
-        subtitle: Optional[str] = listen.release_name
+        subtitle: str | None = listen.release_name
         creator: str = listen.artist_name
         # some unique filename part like (Album Version (Explicit))
         tag_matches_title_substring = any(

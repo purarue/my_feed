@@ -5,7 +5,7 @@ https://purarue.xyz/s/albums
 
 import warnings
 from datetime import datetime, time
-from typing import Iterator
+from collections.abc import Iterator
 
 from my.nextalbums import history as album_history
 from nextalbums.export import Album

@@ -1,7 +1,8 @@
 import time
 import json
 from pathlib import Path
-from typing import Iterator, Callable, Optional, List, TypeGuard, Any, Set
+from typing import TypeGuard, Any
+from collections.abc import Iterator, Callable
 
 import click
 
@@ -42,7 +43,7 @@ def _sources() -> Iterator[Callable[[], Iterator[FeedItem]]]:
 
 
 def data(
-    *, allow: List[str], deny: List[str], blurred: Blurred | None, echo: bool = False
+    *, allow: list[str], deny: list[str], blurred: Blurred | None, echo: bool = False
 ) -> Iterator[FeedItem]:
     for producer in _sources():
         func = f"{producer.__module__}.{producer.__qualname__}"
@@ -77,16 +78,16 @@ def data(
 
 # TODO: this could allow either passing the ID or the URL
 def _parse_blur_file(
-    ctx: click.Context, param: click.Parameter, value: Optional[Path]
-) -> Optional[Blurred]:
+    ctx: click.Context, param: click.Parameter, value: Path | None
+) -> Blurred | None:
     if value is not None:
         return Blurred.parse_file(value)
     return None
 
 
 def _parse_sources(
-    ctx: click.Context, param: click.Parameter, value: Optional[str]
-) -> List[str]:
+    ctx: click.Context, param: click.Parameter, value: str | None
+) -> list[str]:
     if value is not None:
         return [p.strip() for p in value.strip().split(",")]
     return []
@@ -143,18 +144,18 @@ def _parse_sources(
 )
 def index(
     echo: bool,
-    include_sources: List[str],
-    exclude_sources: List[str],
-    write_count_to: Optional[Path],
-    output: Optional[Path],
-    blurred: Optional[Blurred],
-    exclude_id_file: Optional[Path],
+    include_sources: list[str],
+    exclude_sources: list[str],
+    write_count_to: Path | None,
+    output: Path | None,
+    blurred: Blurred | None,
+    exclude_id_file: Path | None,
 ) -> None:
     if blurred:
         click.echo("Blurred matchers:")
         click.echo("\n".join(map(str, blurred.items)))
 
-    exclude_ids: Set[str] = set()
+    exclude_ids: set[str] = set()
     if exclude_id_file is not None:
         click.echo(f"Reading exclude IDs from '{exclude_id_file}'")
         exclude_ids = set(json.loads(exclude_id_file.read_text()))

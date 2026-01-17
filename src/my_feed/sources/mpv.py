@@ -13,7 +13,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from functools import cache
 from math import isclose
-from typing import Iterator, Tuple, Optional, Dict, TypeGuard, List
+from typing import TypeGuard
+from collections.abc import Iterator
 
 from mutagen.mp3 import MP3, MutagenError  # type: ignore[import]
 from mutagen.easyid3 import EasyID3  # type: ignore[import]
@@ -26,7 +27,7 @@ from ..log import logger
 from .common import click, FeedBackgroundError
 
 
-def _path_keys(p: Path | str) -> Iterator[Tuple[str, ...]]:
+def _path_keys(p: Path | str) -> Iterator[tuple[str, ...]]:
     pp = Path(p)
 
     *_, artist, album, song_full = pp.parts
@@ -40,7 +41,7 @@ def _path_keys(p: Path | str) -> Iterator[Tuple[str, ...]]:
 
 
 @cache
-def _music_dir_matches() -> Dict[Tuple[str, ...], Path]:
+def _music_dir_matches() -> dict[tuple[str, ...], Path]:
     """
     Scan my current music directory, creating lookups for possible path matches. For example:
 
@@ -54,7 +55,7 @@ def _music_dir_matches() -> Dict[Tuple[str, ...], Path]:
     """
     music_dir = Path(os.environ["XDG_MUSIC_DIR"])
     assert music_dir.exists(), f"{music_dir} doesn't exist"
-    results: dict[Tuple[str, ...], Path] = {}
+    results: dict[tuple[str, ...], Path] = {}
 
     for f in music_dir.rglob("*.mp3"):
         for pkey in _path_keys(f):
@@ -81,14 +82,14 @@ BASIC_ID3_TAGS = {
 }
 
 
-def _valid_daemon_data(daemon_data: Dict[str, str]) -> bool:
+def _valid_daemon_data(daemon_data: dict[str, str]) -> bool:
     return all(bool(daemon_data.get(tag)) for tag in BASIC_ID3_TAGS)
 
 
-Metadata = Tuple[str, str, str]
+Metadata = tuple[str, str, str]
 
 
-def _daemon_to_metadata(daemon_data: Dict[str, str]) -> Metadata:
+def _daemon_to_metadata(daemon_data: dict[str, str]) -> Metadata:
     return (
         daemon_data["title"],
         daemon_data["album"],
@@ -100,14 +101,14 @@ class JSONCache:
     def __init__(self):
         self.load_data()
 
-    def load_data(self) -> Dict[str, Metadata]:
+    def load_data(self) -> dict[str, Metadata]:
         self.datafile = _manual_mpv_datafile()
-        self.data: Dict[str, Metadata] = {}
+        self.data: dict[str, Metadata] = {}
         if self.datafile.exists():
             self.data = json.loads(self.datafile.read_text())
         return self.data
 
-    def _save_data(self, daemon_data: Dict[str, str], for_path: str) -> Metadata:
+    def _save_data(self, daemon_data: dict[str, str], for_path: str) -> Metadata:
         metadata = _daemon_to_metadata(daemon_data)
         self.data[for_path] = metadata
         return metadata
@@ -122,7 +123,7 @@ JSONData = JSONCache()
 
 
 def _fix_media(
-    m: Media, *, daemon_data: Dict[str, str], is_broken: bool = False
+    m: Media, *, daemon_data: dict[str, str], is_broken: bool = False
 ) -> Metadata:
     """Fix broken metadata on scrobbles, and save my responses to a cache file"""
 
@@ -202,13 +203,13 @@ album: '{daemon_data.get('album')}' -> '{album}'
     )
 
 
-def _is_some(x: Optional[str]) -> TypeGuard[str]:
+def _is_some(x: str | None) -> TypeGuard[str]:
     if x is None:
         return False
     return bool(x.strip())
 
 
-def _has_metadata(m: Media) -> Optional[Metadata]:
+def _has_metadata(m: Media) -> Metadata | None:
     nt = music_parse_metadata_from_blob(m.metadata, strip_whitespace=True)
     if nt:
         return nt.title, nt.album, nt.artist
@@ -266,7 +267,7 @@ matcher = MediaAllowed(
 )
 
 
-def history(from_paths: Optional[List[Path]] = None) -> Iterator[FeedItem]:
+def history(from_paths: list[Path] | None = None) -> Iterator[FeedItem]:
     allow_before = (datetime.now() - timedelta(minutes=5)).timestamp()
 
     gen: Iterator[Media]
@@ -285,9 +286,9 @@ def history(from_paths: Optional[List[Path]] = None) -> Iterator[FeedItem]:
             continue
 
         # placeholder metadata
-        title: Optional[str] = None
-        subtitle: Optional[str] = None  # album
-        creator: Optional[str] = None  # artist
+        title: str | None = None
+        subtitle: str | None = None  # album
+        creator: str | None = None  # artist
 
         try:
             # this has all neccsarry id3 data saved in the 'metadata' blob
