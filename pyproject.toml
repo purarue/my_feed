@@ -1,6 +1,6 @@
 [project]
 name = "hpi_feed"
-version = "0.1.0"
+version = "0.1.1"
 description = "A personal feed/website"
 readme = "README.md"
 license = "MIT"
@@ -56,5 +56,5 @@ my_feed = ["py.typed"]
 [tool.setuptools.packages.find]
 where = ["src"]
 namespaces = true
-include = ["my_feed"]
+include = ["my_feed", "my_feed.sources", "my_feed.sources.trakt"]
 exclude = ["tests", ".github", "backend", "frontend", "scripts"]
