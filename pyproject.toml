@@ -1,5 +1,5 @@
 [project]
-name = "my_feed"
+name = "hpi_feed"
 version = "0.1.0"
 description = "A personal feed/website"
 readme = "README.md"
