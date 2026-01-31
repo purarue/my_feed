@@ -1,3 +1,5 @@
+This is the backend server for `my_feed`, it takes the generated JSON files, merges them into the database while it is running and handles requests from the frontend to filter/query the data.
+
 To build, this requires `go` (I set minimum version to `v1.18`, but you can change the `go.mod` file and try with something lower as well).
 
 To build `sqlite3-go` requires C, so you need `gcc` on your `$PATH`
