@@ -204,8 +204,8 @@ FUNCS = [
     check_albums,
     check_trakt,
     check_chess,
-    check_mpv,
-    check_listens,
+    # check_mpv,
+    # check_listens,
     check_mal,
 ]
 
