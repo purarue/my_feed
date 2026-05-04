@@ -1,4 +1,5 @@
 import os
+import os.path
 import string
 import warnings
 from urllib.parse import urlsplit, urlunsplit
@@ -141,7 +142,7 @@ def grouvee() -> Iterator[FeedItem]:
 
 
 def osrs() -> Iterator[FeedItem]:
-    from my.runelite.screenshots import screenshots, Level
+    from my.runelite.screenshots import screenshots, Level, config as runelite_config
     from my.time.tz.via_location import localize
 
     IGNORED_SCREENSHOTS = {
@@ -149,6 +150,7 @@ def osrs() -> Iterator[FeedItem]:
         "Collection Log",
     }
 
+    src_dir = os.path.abspath(os.path.expanduser(str(runelite_config.export_path)))
     for sc in screenshots():
         if sc.screenshot_type in IGNORED_SCREENSHOTS:
             continue
@@ -165,7 +167,7 @@ def osrs() -> Iterator[FeedItem]:
                         parts.netloc,
                         parts.path.rstrip("/")
                         + "/"
-                        + str(sc.path)[len(os.environ["HPIDATA"]) :].lstrip("/"),
+                        + str(sc.path)[len(src_dir) :].lstrip("/"),
                         "",
                         "",
                     ]
